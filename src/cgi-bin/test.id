@@ -1,0 +1,17 @@
+#!/usr/bin/mono /usr/lib/iodine/bin/iodine.exe  
+use potassium.response;
+use potassium.request;
+
+func main () {
+    paramManager = request.RequestParameters(getEnv("QUERY_STRING"));
+    name = paramManager.getParam("name");
+    resp = null;
+    if (name != null) {
+        resp = response.JSONResponse("{\"message\": \"Hello, " + name + "\"}", 200);
+    }
+    else {
+        resp = response.JSONResponse("{\"name\": \"This field is required\"}", 400);
+    }
+    print(resp.getResponse());
+}
+

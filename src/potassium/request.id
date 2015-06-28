@@ -1,0 +1,31 @@
+class RequestParameters {
+    func RequestParameters(self, queryString) {
+        self.params = self.parse(queryString);
+    }
+    
+    func parse(self, queryString) {
+        if (queryString == null) {
+            return hashMap();
+        }
+        pairs = queryString.split("&");
+        if (pairs[0] == "") {
+            return hashMap();
+        }
+        query_dict = hashMap();
+        foreach (pair in pairs) {
+            pair_items = pair.split("=");
+            query_dict[pair_items[0]] = pair_items[1];
+        }
+        return query_dict;
+    }
+    
+    func getParam(self, key) {
+        if (self.params.contains(key)) {
+            return self.params[key];
+        }
+        else {
+            return null;
+        }
+    }
+
+}

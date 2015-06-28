@@ -1,0 +1,50 @@
+class ResponseHeaders {
+    func getStatusCode(self, code) {
+        statusNames = hashMap();
+        statusNames[200] = "OK";
+        statusNames[400] = "Bad Request";
+        statusNames[403] = "Forbidden";
+        statusNames[404] = "Not Found";
+        return statusNames[code];
+    }
+    
+    func ResponseHeaders(self, statusCode, mime) {
+        self.status = statusCode;
+        self.mime = mime;
+        self.headers = "";
+    }
+    
+    func addHeader(self, header, value) {
+        self.headers = self.headers + header + ": " + value + "\n";
+    }
+    
+    func generate(self) {
+        self.addHeader("Content-type", self.mime);
+        self.addHeader("Status-code", toStr(self.status) + " " + 
+                                      self.getStatusCode(self.status));
+        self.headers = self.headers + "\n";
+        return self.headers;
+    }
+}
+
+class HTMLResponse {
+    func HTMLResponse(self, response, statusCode) {
+        self.headers = ResponseHeaders(statusCode, "text/html").generate();
+        self.response = response;
+    }
+    
+    func getResponse(self) {
+        return self.headers + self.response;
+    }
+}
+
+class JSONResponse {
+    func JSONResponse(self, response, statusCode) {
+        self.headers = ResponseHeaders(statusCode, "application/json").generate();
+        self.response = response;
+    }
+    
+    func getResponse(self) {
+        return self.headers + self.response;
+    }
+}
