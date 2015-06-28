@@ -19,9 +19,9 @@ class ResponseHeaders {
     }
     
     func generate(self) {
+        self.addHeader("Status", toStr(self.status) + " " + 
+                                 self.getStatusCode(self.status));
         self.addHeader("Content-type", self.mime);
-        self.addHeader("Status-code", toStr(self.status) + " " + 
-                                      self.getStatusCode(self.status));
         self.headers = self.headers + "\n";
         return self.headers;
     }
@@ -40,7 +40,8 @@ class HTMLResponse {
 
 class JSONResponse {
     func JSONResponse(self, response, statusCode) {
-        self.headers = ResponseHeaders(statusCode, "application/json").generate();
+        self.headers = ResponseHeaders(statusCode, "application/json")
+                                      .generate();
         self.response = response;
     }
     
@@ -48,3 +49,4 @@ class JSONResponse {
         return self.headers + self.response;
     }
 }
+

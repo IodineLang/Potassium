@@ -1,0 +1,15 @@
+use potassium.request;
+
+class View { 
+    func View(self, responseDelegate) {
+        # responseDelegate returns a response object (duck typing helps
+        # here!)
+        self.responseDelegate = responseDelegate;
+    }
+    
+    func run(self) {
+        params = request.RequestParameters(getEnv("QUERY_STRING"));
+        resp = self.responseDelegate(params);
+        print(resp.getResponse());
+    }      
+}

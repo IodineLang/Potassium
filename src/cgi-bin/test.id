@@ -1,17 +1,21 @@
 #!/usr/bin/mono /usr/lib/iodine/bin/iodine.exe  
 use potassium.response;
 use potassium.request;
+use potassium.views;
 
 func main () {
-    paramManager = request.RequestParameters(getEnv("QUERY_STRING"));
-    name = paramManager.getParam("name");
-    resp = null;
-    if (name != null) {
-        resp = response.JSONResponse("{\"message\": \"Hello, " + name + "\"}", 200);
-    }
-    else {
-        resp = response.JSONResponse("{\"name\": \"This field is required\"}", 400);
-    }
-    print(resp.getResponse());
+    view = views.View(getResponse);
+    view.run();
 }
 
+func getResponse(self, params) {
+    name = params.getParam("name");
+    if (name != null) {
+        return response.JSONResponse("{\"message\": \"Hello, " + name + "\"}",
+                                     200);
+    }
+    else {
+        return response.JSONResponse("{\"name\": \"This field is required\"}",
+                                     400);
+    }
+}
