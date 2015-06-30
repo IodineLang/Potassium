@@ -8,8 +8,8 @@ class View {
     }
     
     func run(self) {
-        params = request.RequestParameters(getEnv("QUERY_STRING"));
-        resp = self.responseDelegate(params);
+        parameters = request.RequestParameters(getEnv("QUERY_STRING"));
+        resp = self.responseDelegate(parameters);
         print(resp.getResponse());
     }      
 }

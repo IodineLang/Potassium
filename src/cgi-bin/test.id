@@ -2,20 +2,33 @@
 use potassium.response;
 use potassium.request;
 use potassium.views;
+use json;
+use mysql;
+
+connectionString = "Server=localhost;Database=test;Uid=root;
+                    Pwd=abcdef;"
 
 func main () {
     view = views.View(getResponse);
     view.run();
 }
 
-func getResponse(self, params) {
-    name = params.getParam("name");
-    if (name != null) {
-        return response.JSONResponse("{\"message\": \"Hello, " + name + "\"}",
-                                     200);
-    }
-    else {
-        return response.JSONResponse("{\"name\": \"This field is required\"}",
-                                     400);
-    }
+func getResponse(self, request) {
+    # Setup your database with this query:
+    # CREATE TABLE Names (
+    # Name VARCHAR(50) NOT NULL,
+    # Age INT(3) NOT NULL
+    # );
+    name = request.getParam("name");
+    age = Int(request.getParam("age"));
+    db = mysql.openDatabase(connectionString);
+    dbNameParam = db.createParam("name", name);
+    dbAgeParam = db.createParam("age", age);
+    db.executeSqlPrepared("INSERT INTO Names VALUES (@name, @age)", dbNameParam, 
+                          dbAgeParam);
+    resp = hashMap();
+    resp["age"] = db.querySqlPrepared("SELECT * FROM Names WHERE Name = 
+                                          @name", dbNameParam)[0]["Age"];
+    db.close();
+    return response.JSONResponse(json.dump(resp), 200);
 }

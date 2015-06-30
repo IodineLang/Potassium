@@ -1,0 +1,24 @@
+#!/usr/bin/mono /usr/lib/iodine/bin/iodine.exe  
+use potassium.response;
+use potassium.request;
+use potassium.views;
+use json;
+
+func main () {
+    view = views.View(getResponse);
+    view.run();
+}
+
+func getResponse(self, request) {
+    name = request.getParam("name");
+    if (name != null) {
+        resp = hashMap();
+        resp["message"] = "Hello, " + name;
+        return response.JSONResponse(json.dump(resp), 200);
+    }
+    else {
+        resp = hashMap();
+        resp["name"] = "This field is required";
+        return response.JSONResponse(json.dump(resp), 400);
+    }
+}

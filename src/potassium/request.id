@@ -1,6 +1,6 @@
 class RequestParameters {
     func RequestParameters(self, queryString) {
-        self.params = self.parse(queryString);
+        self.parameters = self.parse(queryString);
     }
     
     func parse(self, queryString) {
@@ -20,8 +20,8 @@ class RequestParameters {
     }
     
     func getParam(self, key) {
-        if (self.params.contains(key)) {
-            return self.params[key];
+        if (self.parameters.contains(key)) {
+            return self.parameters[key];
         }
         else {
             return null;
