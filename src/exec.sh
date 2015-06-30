@@ -1,2 +1,2 @@
 #!/bin/bash
-./cgi-bin/test.id
+./cgi-bin/routerdemo.id

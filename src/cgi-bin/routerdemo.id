@@ -1,0 +1,34 @@
+#!/usr/bin/mono /usr/lib/iodine/bin/iodine.exe  
+use potassium.response;
+use potassium.request;
+use potassium.views;
+use potassium.router;
+use json;
+
+func main () {
+    urlList = list();
+    urlList.add(router.URLItem("/", views.View(okView)));
+    urlList.add(router.URLItem("/bye", views.View(byeView)));
+    notFoundItem = router.URLItem("/404", views.View(notFoundView));
+    urlSpec = router.URLSpec(urlList, notFoundItem);
+    xRouter = router.Router(urlSpec, getEnv("PATH_INFO"));
+    xRouter.run();
+}
+
+func notFoundView (self, requestData) {
+    resp = hashMap();
+    resp["response"] = "Unknown request.";
+    return response.JSONResponse(json.dump(resp), 404);
+}
+
+func okView(self, requestData) {
+    resp = hashMap();
+    resp["response"] = "OK.";
+    return response.JSONResponse(json.dump(resp), 200);
+}
+
+func byeView(self, requestData) {
+    resp = hashMap();
+    resp["response"] = "Bye!";
+    return response.JSONResponse(json.dump(resp), 200);
+}

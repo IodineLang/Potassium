@@ -13,14 +13,14 @@ func main () {
     view.run();
 }
 
-func getResponse(self, request) {
+func getResponse(self, requestData) {
     # Setup your database with this query:
     # CREATE TABLE Names (
     # Name VARCHAR(50) NOT NULL,
     # Age INT(3) NOT NULL
     # );
-    name = request.getParam("name");
-    age = Int(request.getParam("age"));
+    name = requestData.parameters.getParam("name");
+    age = Int(requestData.parameters.getParam("age"));
     db = mysql.openDatabase(connectionString);
     dbNameParam = db.createParam("name", name);
     dbAgeParam = db.createParam("age", age);

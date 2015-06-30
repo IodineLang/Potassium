@@ -29,3 +29,9 @@ class RequestParameters {
     }
 
 }
+
+class Request {
+    func Request(parameters) {
+        self.parameters = parameters;
+    }
+}

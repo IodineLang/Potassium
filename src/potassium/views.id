@@ -9,7 +9,8 @@ class View {
     
     func run(self) {
         parameters = request.RequestParameters(getEnv("QUERY_STRING"));
-        resp = self.responseDelegate(parameters);
+        requestData = request.Request(parameters);
+        resp = self.responseDelegate(requestData);
         print(resp.getResponse());
     }      
 }
