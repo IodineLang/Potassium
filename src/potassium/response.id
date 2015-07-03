@@ -38,14 +38,14 @@ class Response {
     }
 }
 
-class HTMLResponse {
+class HTMLResponse : Response {
     func HTMLResponse(self, response, statusCode) {
         super(response, statusCode, "text/html");
     }
     
 }
 
-class JSONResponse {
+class JSONResponse : Response{
     func JSONResponse(self, response, statusCode) {
         super(response, statusCode, "application/json");
     }
