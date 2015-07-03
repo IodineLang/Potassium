@@ -34,8 +34,8 @@ class Auth {
     func verifyToken(self, token) {
         token = Str(hash.sha512(token));
         tokenParam = self.db.createParam("token", token);
-        result = self.db.querySqlPrepared("SELECT * FROM `Tokens` WHERE token
-                                          = @token;", tokenParam);
+        result = self.db.querySqlPrepared("SELECT (username) FROM `Tokens` WHERE 
+                                          token = @token;", tokenParam);
         if (result.getSize() == 0) {
             return null;
         }
@@ -48,8 +48,8 @@ class Auth {
     
     func verifyPass(self, username, rawPass) {
         unameParam = self.db.createParam("uname", username);
-        result = self.db.querySqlPrepared("SELECT * FROM `Users` WHERE username
-                                          = @uname;", unameParam);
+        result = self.db.querySqlPrepared("SELECT (salt, pass) FROM `Users` 
+                                         WHERE username = @uname;", unameParam);
         if (result.getSize() == 0) {
             return false;
         }
