@@ -7,28 +7,36 @@ use json;
 
 func main () {
     urlList = list();
-    urlList.add(router.URLItem("/", views.View(okView)));
-    urlList.add(router.URLItem("/bye", views.View(byeView)));
-    notFoundItem = router.URLItem("/404", views.View(notFoundView));
-    urlSpec = router.URLSpec(urlList, notFoundItem);
+    urlList.add(router.URLItem("/", views.View(request.GetRequest(), okView)));
+    urlList.add(router.URLItem("/", views.View(request.PostRequest(), postView)));
+    urlList.add(router.URLItem("/bye", views.View(request.GetRequest(), 
+                                                  byeView)));
+    urlList.add(router.URLItem("/404", views.View(request.AnyRequest(), 
+                                                     notFoundView)));
+    urlSpec = router.URLSpec(urlList, "/404");
     xRouter = router.Router(urlSpec, getEnv("PATH_INFO"));
+    
     xRouter.run();
 }
 
-func notFoundView (self, requestData) {
+func notFoundView (requestData) {
     resp = hashMap();
     resp["response"] = "Unknown request.";
     return response.JSONResponse(json.dump(resp), 404);
 }
 
-func okView(self, requestData) {
+func okView(requestData) {
     resp = hashMap();
     resp["response"] = "OK.";
     return response.JSONResponse(json.dump(resp), 200);
 }
 
-func byeView(self, requestData) {
+func byeView(requestData) {
     resp = hashMap();
     resp["response"] = "Bye!";
     return response.JSONResponse(json.dump(resp), 200);
+}
+
+func postView(requestData) {
+    return response.HTMLResponse("<h1>Heh.</h1>", 200);
 }

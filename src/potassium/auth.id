@@ -1,0 +1,107 @@
+use hash;
+use random;
+use mysql; 
+
+class Auth {
+    func Auth(self, db) {
+        self.db = db;
+    }
+    
+    func _hash(self, pass, salt) {
+        if (salt == "") {
+            salt = random.cryptoString(16);
+        }
+        hashPass = Str(hash.sha512(Str(salt) + Str(pass)));
+        return (pass, salt);
+    }
+    
+    func createToken(self, user, rawPass) {
+        if (!self.verifyPass(user, rawPass)) {
+            return null;
+        }
+        unameParam = self.db.createParam("uname", user);
+        self.db.executeSqlPrepared("DELETE FROM `Tokens` WHERE username
+                                             = @uname;", unameParam);
+        token = random.cryptoString(128);
+        res = hash.sha512(token);
+        tokenParam = self.db.createParam("token", res);
+        self.db.executeSqlPrepared("INSERT INTO `Tokens` (username, token)
+                                   VALUES (@uname, @token);", unameParam, 
+                                   tokenParam);
+        return token;    
+    }
+    
+    func verifyToken(self, token) {
+        token = Str(hash.sha512(token));
+        tokenParam = self.db.createParam("token", token);
+        result = self.db.querySqlPrepared("SELECT * FROM `Tokens` WHERE token
+                                          = @token;", tokenParam);
+        if (result.getSize() == 0) {
+            return null;
+        }
+        else if (result.getSize() > 1) {
+            raise("Database corrupt!");
+        }
+        
+        return result[0]["username"];
+    }
+    
+    func verifyPass(self, username, rawPass) {
+        unameParam = self.db.createParam("uname", username);
+        result = self.db.querySqlPrepared("SELECT * FROM `Users` WHERE username
+                                          = @uname;", unameParam);
+        if (result.getSize() == 0) {
+            return false;
+        }
+        else if (result.getSize() > 1) {
+            raise("Database corrupt!");
+        }
+        salt = result[0]["salt"];
+        hashPass = self._hash(rawPass, salt)[0];
+        if (hashPass == result[0]["pass"]) {
+            return true;
+        }
+        return false;
+    }
+    
+    func createUser(self, username, rawPass, email) {
+        hashTuple = self._hash(rawPass, "");
+        hashPass = hashTuple[0];
+        salt = hashTuple[1];
+        unameParam = self.db.createParam("uname", Str(username));
+        passParam = self.db.createParam("pass", hashPass);
+        saltParam = self.db.createParam("salt", salt);
+        emailParam = self.db.createParam("email", email);
+        self.db.executeSqlPrepared("INSERT INTO `Users` (username, email, pass, 
+        salt) VALUES (@uname, @email, @pass, @salt);", unameParam, passParam, 
+        saltParam, emailParam);
+        return true;
+    }
+    
+    func setUp(self) {
+        self.db.executeSql("
+DROP TABLE IF EXISTS `Users`;
+DROP TABLE IF EXISTS `Tokens`;
+		
+CREATE TABLE `Users` (
+  `id` INTEGER NULL AUTO_INCREMENT DEFAULT NULL,
+  `username` VARCHAR(50) NOT NULL UNIQUE,
+  `email` VARCHAR(254) NOT NULL,
+  `pass` CHAR(128) NOT NULL,
+  `salt` CHAR(16) NOT NULL,
+  PRIMARY KEY (`id`)
+);
+
+CREATE TABLE `Tokens` (
+  `id` INTEGER NULL AUTO_INCREMENT DEFAULT NULL,
+  `username` VARCHAR(50) NOT NULL UNIQUE,
+  `token` CHAR (128) NOT NULL UNIQUE,
+  PRIMARY KEY (`id`)
+);
+
+ALTER TABLE `Users` ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+ALTER TABLE `Tokens` ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+");
+    }
+}

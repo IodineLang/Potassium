@@ -1,0 +1,98 @@
+#!/usr/bin/mono /usr/lib/iodine/bin/iodine.exe  
+use potassium.response;
+use potassium.request;
+use potassium.views;
+use potassium.router;
+use potassium.auth;
+use json;
+use mysql;
+
+CONNECTION_STRING = "Server=localhost;Database=test;Uid=root;Pwd=secret;"
+
+func main () {
+    urlList = list();
+    urlList.add(router.URLItem("/", views.View(request.GetRequest(), okView)));
+    urlList.add(router.URLItem("/login", views.View(request.PostRequest(), 
+                                                     loginView)));
+    urlList.add(router.URLItem("/verify", views.View(request.PostRequest(),
+                                                     verifyView)));          
+    urlList.add(router.URLItem("/setup", views.View(request.PostRequest(),
+                                                     createView)));
+                                                               
+    urlList.add(router.URLItem("/register", views.View(request.PostRequest(),
+                                                       registerView)));
+    urlList.add(router.URLItem("/404", views.View(request.AnyRequest(), 
+                                                     notFoundView)));
+    urlSpec = router.URLSpec(urlList, "/404");
+    xRouter = router.Router(urlSpec, getEnv("PATH_INFO"));
+    xRouter.run();
+}
+
+func notFoundView (requestData) {
+    resp = hashMap();
+    resp["response"] = "Unknown request.";
+    return response.JSONResponse(json.dump(resp), 404);
+}
+
+func okView(requestData) {
+    resp = hashMap();
+    resp["response"] = "Welcome!";
+    return response.JSONResponse(json.dump(resp), 200);
+}
+
+func verifyView(requestData) {
+    authHelper = auth.Auth(mysql.openDatabase(CONNECTION_STRING));
+    token = requestData.postData.getParam("token");
+    username = authHelper.verifyToken(token);
+    resp = hashMap();
+    if (username != null) {
+        resp["message"] = "Hello, " + username;
+        return response.JSONResponse(json.dump(resp), 200);
+    }
+    else {
+        resp["message"] = "Invalid token.";
+        return response.JSONResponse(json.dump(resp), 400);
+    }
+}
+
+func registerView(requestData) {
+    authHelper = auth.Auth(mysql.openDatabase(CONNECTION_STRING));
+    username = requestData.postData.getParam("username");
+    email = requestData.postData.getParam("email");
+    pass = requestData.postData.getParam("password");
+    resp = hashMap();
+    if (authHelper.createUser(username, pass, email)) {
+        resp["message"] = "Account creation successful for user " + username;
+        return response.JSONResponse(json.dump(resp), 200);
+    }
+    else {
+        resp["message"] = "An unexpected error occurred!";
+        return response.JSONResponse(json.dump(resp), 400);
+    }
+}
+
+func loginView(requestData) {
+    authHelper = auth.Auth(mysql.openDatabase(CONNECTION_STRING));
+    username = Str(requestData.postData.getParam("username"));
+    pass = Str(requestData.postData.getParam("password"));
+    token = authHelper.createToken(username, pass);
+    resp = hashMap();
+    if (token != null) {
+        resp["token"] = token;
+        return response.JSONResponse(json.dump(resp), 200);
+    }
+    else {
+        resp["message"] = "Invalid authentication details!";
+        return response.JSONResponse(json.dump(resp), 200);
+    }
+}
+
+func createView(requestData) {
+    authHelper = auth.Auth(mysql.openDatabase(CONNECTION_STRING));
+    authHelper.setUp();
+    resp = hashMap();
+    resp["message"] = "Created database schema.";
+    return response.JSONResponse(json.dump(resp), 200);
+}
+
+

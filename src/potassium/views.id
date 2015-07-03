@@ -1,16 +1,41 @@
+use json;
+
 use potassium.request;
 
 class View { 
-    func View(self, responseDelegate) {
+    func View(self, requestType, responseFunc) {
         # responseDelegate returns a response object (duck typing helps
         # here!)
-        self.responseDelegate = responseDelegate;
+        self.responseFunc = responseFunc;
+        self.requestType = requestType;
     }
     
     func run(self) {
-        parameters = request.RequestParameters(getEnv("QUERY_STRING"));
-        requestData = request.Request(parameters);
-        resp = self.responseDelegate(requestData);
-        print(resp.getResponse());
+        if (self.requestType.name == "*" || 
+            getEnv("REQUEST_METHOD") == self.requestType.name) {
+            
+            getParameters = null;
+            if (self.requestType.queryParams) {
+                getParameters = request.URLEncodedParameters(getEnv(
+                                                             "QUERY_STRING"));   
+            }
+            postParameters = null;
+            if (self.requestType.postParams) {
+                contentType = getEnv("CONTENT_TYPE");
+                if (contentType == "application/json") {
+                    data = stdin.read(Int(getEnv("CONTENT_LENGTH")));
+                    postParameters = request.Parameters(json.parse(data));
+                }
+                else if (contentType == "application/x-www-form-urlencoded") {
+                    data = stdin.read(Int(getEnv("CONTENT_LENGTH")));
+                    postParameters = request.URLEncodedParameters(data);
+                }
+            }
+            requestData = request.Request(getParameters, postParameters);
+            resp = self.responseFunc(requestData);
+            print(resp.getResponse());
+            return true;
+        }
+        return false;
     }      
 }

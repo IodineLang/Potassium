@@ -9,7 +9,7 @@ func main () {
     view.run();
 }
 
-func getResponse(self, requestData) {
+func getResponse(requestData) {
     name = requestData.parameters.getParam("name");
     if (name != null) {
         resp = hashMap();

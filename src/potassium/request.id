@@ -1,5 +1,21 @@
-class RequestParameters {
-    func RequestParameters(self, queryString) {
+class Parameters {
+    func Parameters (self, paramDict) {
+        self.parameters = paramDict;
+    }
+
+    func getParam(self, key) {
+        if (self.parameters.contains(key)) {
+            return self.parameters[key];
+        }
+        else {
+            return null;
+        }
+    }
+}
+
+class URLEncodedParameters : Parameters {
+    func URLEncodedParameters(self, queryString) {
+        super(null);
         self.parameters = self.parse(queryString);
     }
     
@@ -18,20 +34,41 @@ class RequestParameters {
         }
         return query_dict;
     }
-    
-    func getParam(self, key) {
-        if (self.parameters.contains(key)) {
-            return self.parameters[key];
-        }
-        else {
-            return null;
-        }
-    }
 
 }
 
 class Request {
-    func Request(parameters) {
-        self.parameters = parameters;
+    func Request(getParameters, postData) {
+        self.parameters = getParameters;
+        self.postData = postData;
+    }
+}
+
+class RequestType {
+    # Name = string (caps) e.g. GET
+    # Parameters = bool, indicating whether
+    #              stdin should be read.
+    func RequestType(self, name, postParams, queryParams) {
+        self.name = name;
+        self.postParams = postParams;
+        self.queryParams = queryParams;
+    }
+}
+
+class GetRequest : RequestType {
+    func GetRequest(self) {
+        super("GET", false, true);
+    }
+}
+
+class PostRequest : RequestType {
+    func PostRequest(self) {
+        super("POST", true, true);
+    }
+}
+
+class AnyRequest : RequestType {
+    func AnyRequest(self) {
+        super("*", true, true);
     }
 }
