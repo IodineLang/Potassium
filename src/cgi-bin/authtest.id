@@ -14,6 +14,10 @@ func main (args) {
         migrate();
         return;
     }
+    else if (args.getSize() == 4 && args[0] == "createsuperuser") {
+        createSuperUser(args[1], args[2], args[3]);
+        return;
+    }
     urlList = list();
     urlList.add(router.URLItem("/", views.View(request.GetRequest(), okView)));
     urlList.add(router.URLItem("/login", views.View(request.PostRequest(), 
@@ -24,6 +28,8 @@ func main (args) {
                                                        registerView)));
     urlList.add(router.URLItem("/404", views.View(request.AnyRequest(), 
                                                      notFoundView)));
+    urlList.add(router.URLItem("/checkadmin", views.View(request.PostRequest(), 
+                                                         checkAdminView)));
     urlSpec = router.URLSpec(urlList, "/404");
     xRouter = router.Router(urlSpec, getEnv("PATH_INFO"));
     xRouter.run();
@@ -48,6 +54,23 @@ func verifyView(requestData) {
     resp = hashMap();
     if (username != null) {
         resp["message"] = "Hello, " + username;
+        return response.JSONResponse(json.dump(resp), 200);
+    }
+    else {
+        resp["message"] = "Invalid token.";
+        return response.JSONResponse(json.dump(resp), 400);
+    }
+}
+
+func checkAdminView(requestData) {
+    print("\n\n");
+    authHelper = auth.Auth(mysql.openDatabase(CONNECTION_STRING));
+    token = requestData.postData.getParam("token");
+    username = authHelper.verifyToken(token);
+    resp = hashMap();
+    if (username != null) {
+        user = authHelper.getUser(username);
+        resp["admin"] = Str(user["isadmin"]);
         return response.JSONResponse(json.dump(resp), 200);
     }
     else {
@@ -94,4 +117,8 @@ func migrate() {
     print("Migrated database.");
 }
 
-
+func createSuperUser(uname, pass, mail) {
+    authHelper = auth.Auth(mysql.openDatabase(CONNECTION_STRING));
+    authHelper.createSuperUser(uname, pass, mail);
+    print("Created super user.");
+}

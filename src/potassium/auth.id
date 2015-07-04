@@ -48,7 +48,7 @@ class Auth {
     
     func verifyPass (self, username, rawPass) {
         unameParam = self.db.createParam("uname", username);
-        result = self.db.querySqlPrepared("SELECT (salt, pass) FROM `Users` 
+        result = self.db.querySqlPrepared("SELECT salt, pass FROM `Users` 
                                          WHERE username = @uname;", unameParam);
         if (result.getSize() == 0) {
             return false;
@@ -64,7 +64,13 @@ class Auth {
         return false;
     }
     
-    func createUser (self, username, rawPass, email) {
+    func _createUser (self, username, rawPass, email, isAdmin) {
+        if (isAdmin) {
+            isAdmin = 1;
+        }
+        else {
+            isAdmin = 0;
+        }
         hashTuple = self._hash(rawPass, "");
         hashPass = hashTuple[0];
         salt = hashTuple[1];
@@ -72,10 +78,38 @@ class Auth {
         passParam = self.db.createParam("pass", hashPass);
         saltParam = self.db.createParam("salt", salt);
         emailParam = self.db.createParam("email", email);
+        isadmin = self.db.createParam("isadmin", isAdmin);
         self.db.executeSqlPrepared("INSERT INTO `Users` (username, email, pass, 
-        salt) VALUES (@uname, @email, @pass, @salt);", unameParam, passParam, 
-        saltParam, emailParam);
+               salt, isadmin) VALUES (@uname, @email, @pass, @salt, @isadmin);", 
+               unameParam, passParam, saltParam, emailParam, isadmin);
         return true;
+    }
+    
+    func createUser (self, username, rawPass, email) {
+        return self._createUser(username, rawPass, email, false);
+    }
+    
+    func createSuperUser (self, username, rawPass, email) {
+        return self._createUser(username, rawPass, email, true);
+    }
+    
+    func getUser(self, username) {
+        unameParam = self.db.createParam("uname", username);
+        users = self.db.querySqlPrepared("SELECT id, username, email, isadmin 
+                                         FROM `Users` WHERE username = @uname",
+                                         unameParam);
+        if (users.getSize() == 0) {
+            return null;
+        }
+        
+        user = users[0];
+        if (user["isadmin"] == "True") { 
+            user["isadmin"] = true;
+        }
+        else {
+            user["isadmin"] = false;
+        }
+        return user;
     }
     
     func migrate (self) {
