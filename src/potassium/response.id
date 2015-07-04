@@ -1,3 +1,5 @@
+use potassium.templates;
+
 class ResponseHeaders {
     func getStatusCode (self, code) {
         statusNames = hashMap();
@@ -43,6 +45,12 @@ class HTMLResponse : Response {
         super(response, statusCode, "text/html");
     }
     
+}
+
+class TemplateResponse : HTMLResponse {
+    func TemplateResponse (self, fileName, context) {
+        super(templates.Template(fileName).render(context), 200);
+    }
 }
 
 class JSONResponse : Response {

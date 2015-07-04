@@ -1,0 +1,34 @@
+#!/usr/bin/mono /usr/lib/iodine/bin/iodine.exe
+
+use potassium.router;
+use potassium.request;
+use potassium.response;
+use potassium.views;
+
+
+func main (args) {
+    if ((args.getSize ()) == 1 && (args [0] == "migrate")) {
+        print ("This application has no migrations.");
+    }
+    else if ((args.getSize () >= 1) && (args [0] == "createsuperuser")) {
+        print ("This application does not use the Auth system.");
+    }
+    urlList = list ();
+    urlList.add (router.URLItem ("/", homePage));
+    urlList.add (router.URLItem ("/404", notFound));
+    urlSpec = router.URLSpec (urlList, "/404");
+    appRouter = router.Router (urlSpec, getEnv ("PATH_INFO"));
+    appRouter.run ();
+}
+
+func notFoundView (requestData) {
+    return response.TemplateResponse ("cgi-bin/templates/404.html", hashMap ());
+}
+
+func homePageView (requestData) {
+    return response.TemplateResponse ("cgi-bin/templates/index.html", 
+                                      hashMap ());
+}
+
+homePage = views.View (request.GetRequest (), homePageView);
+notFound = views.View (request.AnyRequest (), notFoundView);

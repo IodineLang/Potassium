@@ -1,0 +1,11 @@
+class Template {
+    func Template(self, fileName) {
+        self.template = open(fileName, "r").readAllText();
+    }
+    
+    # Takes a hashMap for context with all the named variables to be passed to 
+    # the template.
+    func render(self, context) {
+        return self.template;
+    }
+}
