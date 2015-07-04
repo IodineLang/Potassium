@@ -14,12 +14,12 @@ class Parameters {
 }
 
 class URLEncodedParameters : Parameters {
-    func URLEncodedParameters(self, queryString) {
+    func URLEncodedParameters (self, queryString) {
         super(null);
         self.parameters = self.parse(queryString);
     }
     
-    func parse(self, queryString) {
+    func parse (self, queryString) {
         if (queryString == null) {
             return hashMap();
         }
@@ -38,7 +38,7 @@ class URLEncodedParameters : Parameters {
 }
 
 class Request {
-    func Request(getParameters, postData) {
+    func Request (getParameters, postData) {
         self.parameters = getParameters;
         self.postData = postData;
     }
@@ -48,7 +48,7 @@ class RequestType {
     # Name = string (caps) e.g. GET
     # Parameters = bool, indicating whether
     #              stdin should be read.
-    func RequestType(self, name, postParams, queryParams) {
+    func RequestType (self, name, postParams, queryParams) {
         self.name = name;
         self.postParams = postParams;
         self.queryParams = queryParams;
@@ -56,19 +56,19 @@ class RequestType {
 }
 
 class GetRequest : RequestType {
-    func GetRequest(self) {
+    func GetRequest (self) {
         super("GET", false, true);
     }
 }
 
 class PostRequest : RequestType {
-    func PostRequest(self) {
+    func PostRequest (self) {
         super("POST", true, true);
     }
 }
 
 class AnyRequest : RequestType {
-    func AnyRequest(self) {
+    func AnyRequest (self) {
         super("*", true, true);
     }
 }

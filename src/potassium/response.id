@@ -1,5 +1,5 @@
 class ResponseHeaders {
-    func getStatusCode(self, code) {
+    func getStatusCode (self, code) {
         statusNames = hashMap();
         statusNames[200] = "OK";
         statusNames[400] = "Bad Request";
@@ -8,7 +8,7 @@ class ResponseHeaders {
         return statusNames[code];
     }
     
-    func ResponseHeaders(self, statusCode, mime) {
+    func ResponseHeaders (self, statusCode, mime) {
         self.status = statusCode;
         self.mime = mime;
         self.headers = "";
@@ -18,7 +18,7 @@ class ResponseHeaders {
         self.headers = self.headers + header + ": " + value + "\n";
     }
     
-    func generate(self) {
+    func generate (self) {
         self.addHeader("Status", toStr(self.status) + " " + 
                                  self.getStatusCode(self.status));
         self.addHeader("Content-type", self.mime);
@@ -28,7 +28,7 @@ class ResponseHeaders {
 }
 
 class Response {
-    func Response(self, response, statusCode, mime) {
+    func Response (self, response, statusCode, mime) {
         self.headers = ResponseHeaders(statusCode, mime).generate();
         self.response = response;
     }
@@ -39,14 +39,14 @@ class Response {
 }
 
 class HTMLResponse : Response {
-    func HTMLResponse(self, response, statusCode) {
+    func HTMLResponse (self, response, statusCode) {
         super(response, statusCode, "text/html");
     }
     
 }
 
-class JSONResponse : Response{
-    func JSONResponse(self, response, statusCode) {
+class JSONResponse : Response {
+    func JSONResponse (self, response, statusCode) {
         super(response, statusCode, "application/json");
     }
 }

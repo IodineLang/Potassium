@@ -7,7 +7,7 @@ class Auth {
         self.db = db;
     }
     
-    func _hash(self, pass, salt) {
+    func _hash (self, pass, salt) {
         if (salt == "") {
             salt = random.cryptoString(16);
         }
@@ -15,7 +15,7 @@ class Auth {
         return (pass, salt);
     }
     
-    func createToken(self, user, rawPass) {
+    func createToken (self, user, rawPass) {
         if (!self.verifyPass(user, rawPass)) {
             return null;
         }
@@ -31,7 +31,7 @@ class Auth {
         return token;    
     }
     
-    func verifyToken(self, token) {
+    func verifyToken (self, token) {
         token = Str(hash.sha512(token));
         tokenParam = self.db.createParam("token", token);
         result = self.db.querySqlPrepared("SELECT (username) FROM `Tokens` WHERE 
@@ -46,7 +46,7 @@ class Auth {
         return result[0]["username"];
     }
     
-    func verifyPass(self, username, rawPass) {
+    func verifyPass (self, username, rawPass) {
         unameParam = self.db.createParam("uname", username);
         result = self.db.querySqlPrepared("SELECT (salt, pass) FROM `Users` 
                                          WHERE username = @uname;", unameParam);
@@ -64,7 +64,7 @@ class Auth {
         return false;
     }
     
-    func createUser(self, username, rawPass, email) {
+    func createUser (self, username, rawPass, email) {
         hashTuple = self._hash(rawPass, "");
         hashPass = hashTuple[0];
         salt = hashTuple[1];
@@ -78,7 +78,7 @@ class Auth {
         return true;
     }
     
-    func setUp(self) {
+    func migrate (self) {
         self.db.executeSql("
 DROP TABLE IF EXISTS `Users`;
 DROP TABLE IF EXISTS `Tokens`;
@@ -89,6 +89,7 @@ CREATE TABLE `Users` (
   `email` VARCHAR(254) NOT NULL,
   `pass` CHAR(128) NOT NULL,
   `salt` CHAR(16) NOT NULL,
+  `isadmin` BOOLEAN NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`)
 );
 

@@ -9,16 +9,17 @@ use mysql;
 
 CONNECTION_STRING = "Server=localhost;Database=test;Uid=root;Pwd=secret;"
 
-func main () {
+func main (args) {
+    if (args.getSize() == 1 && args[0] == "migrate") {
+        migrate();
+        return;
+    }
     urlList = list();
     urlList.add(router.URLItem("/", views.View(request.GetRequest(), okView)));
     urlList.add(router.URLItem("/login", views.View(request.PostRequest(), 
                                                      loginView)));
     urlList.add(router.URLItem("/verify", views.View(request.PostRequest(),
-                                                     verifyView)));          
-    urlList.add(router.URLItem("/setup", views.View(request.PostRequest(),
-                                                     createView)));
-                                                               
+                                                     verifyView)));                                                                        
     urlList.add(router.URLItem("/register", views.View(request.PostRequest(),
                                                        registerView)));
     urlList.add(router.URLItem("/404", views.View(request.AnyRequest(), 
@@ -87,12 +88,10 @@ func loginView(requestData) {
     }
 }
 
-func createView(requestData) {
+func migrate() {
     authHelper = auth.Auth(mysql.openDatabase(CONNECTION_STRING));
-    authHelper.setUp();
-    resp = hashMap();
-    resp["message"] = "Created database schema.";
-    return response.JSONResponse(json.dump(resp), 200);
+    authHelper.migrate();
+    print("Migrated database.");
 }
 
 

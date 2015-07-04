@@ -1,10 +1,10 @@
 class Router {
-    func Router(self, urlSpec, pathInfo) {
+    func Router (self, urlSpec, pathInfo) {
         self.urlSpec = urlSpec;
         self.pathInfo = pathInfo;
     }
     
-    func run(self) {
+    func run (self) {
         foreach(urlItem in self.urlSpec.items) {
             if (urlItem.path == self.pathInfo) {
                 if (urlItem.view.run()) {
@@ -17,7 +17,7 @@ class Router {
 }
 
 class URLSpec {
-    func URLSpec(self, list, notFound) {
+    func URLSpec (self, list, notFound) {
         self.items = list;
         self.notFound = filter(list, lambda(i) => {
             return i.path == notFound;
@@ -26,7 +26,7 @@ class URLSpec {
 }
 
 class URLItem {
-    func URLItem(self, path, view) {
+    func URLItem (self, path, view) {
         self.path = path;
         self.view = view;
     }
