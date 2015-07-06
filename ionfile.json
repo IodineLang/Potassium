@@ -1,5 +1,6 @@
 {
     "modules": {
         "potassium": "src/potassium"
-    }
+    },
+    "extensions": {}
 }
