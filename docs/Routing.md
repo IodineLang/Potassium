@@ -1,4 +1,6 @@
 # Potassium Routing
+(written for Potassium **v0.1.0**)
+
 Routing is a great way to make your web application semantic and flexible, as
 [recommended by Tim Berners-Lee](http://www.w3.org/Provider/Style/URI.html) 
 (despite being from 1998, the advice there still applies today).
