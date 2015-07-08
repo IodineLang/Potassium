@@ -1,5 +1,5 @@
 # Potassium Authentication
-(written pre-v0.1)
+(written for Potassium **v0.1.0**)
 
 Almost all meaningful web applications depend on user authentication, so 
 Potassium comes with an authentication system out of the box. All you need to 
