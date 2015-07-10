@@ -1,4 +1,5 @@
 use json;
+use os;
 
 use potassium.request;
 
@@ -12,22 +13,22 @@ class View {
     
     func run (self) {
         if (self.requestType.name == "*" || 
-            getEnv("REQUEST_METHOD") == self.requestType.name) {
+            os.getEnv("REQUEST_METHOD") == self.requestType.name) {
             
             getParameters = null;
             if (self.requestType.queryParams) {
-                getParameters = request.URLEncodedParameters(getEnv(
+                getParameters = request.URLEncodedParameters(os.getEnv(
                                                              "QUERY_STRING"));   
             }
             postParameters = null;
             if (self.requestType.postParams) {
-                contentType = getEnv("CONTENT_TYPE");
+                contentType = os.getEnv("CONTENT_TYPE");
                 if (contentType == "application/json") {
-                    data = stdin.read(Int(getEnv("CONTENT_LENGTH")));
+                    data = stdin.read(Int(os.getEnv("CONTENT_LENGTH")));
                     postParameters = request.Parameters(json.parse(data));
                 }
                 else if (contentType == "application/x-www-form-urlencoded") {
-                    data = stdin.read(Int(getEnv("CONTENT_LENGTH")));
+                    data = stdin.read(Int(os.getEnv("CONTENT_LENGTH")));
                     postParameters = request.URLEncodedParameters(data);
                 }
             }

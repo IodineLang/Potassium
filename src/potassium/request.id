@@ -21,13 +21,13 @@ class URLEncodedParameters : Parameters {
     
     func parse (self, queryString) {
         if (queryString == null) {
-            return hashMap();
+            return HashMap();
         }
         pairs = queryString.split("&");
         if (pairs[0] == "") {
-            return hashMap();
+            return HashMap();
         }
-        query_dict = hashMap();
+        query_dict = HashMap();
         foreach (pair in pairs) {
             pair_items = pair.split("=");
             query_dict[pair_items[0]] = pair_items[1];

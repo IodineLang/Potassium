@@ -2,7 +2,7 @@ use potassium.templates;
 
 class ResponseHeaders {
     func getStatusCode (self, code) {
-        statusNames = hashMap();
+        statusNames = HashMap();
         statusNames[200] = "OK";
         statusNames[400] = "Bad Request";
         statusNames[403] = "Forbidden";
@@ -21,7 +21,7 @@ class ResponseHeaders {
     }
     
     func generate (self) {
-        self.addHeader("Status", toStr(self.status) + " " + 
+        self.addHeader("Status", Str (self.status) + " " + 
                                  self.getStatusCode(self.status));
         self.addHeader("Content-type", self.mime);
         self.headers = self.headers + "\n";

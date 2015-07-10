@@ -1,10 +1,11 @@
-#!/usr/bin/mono /usr/lib/iodine/bin/iodine.exe  
+#!/usr/bin/mono /usr/lib/iodine/iodine.exe  
 use potassium.response;
 use potassium.request;
 use potassium.views;
 use json;
 
 func main () {
+    print ("\n\n");
     view = views.View(getResponse);
     view.run();
 }

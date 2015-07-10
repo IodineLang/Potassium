@@ -1,28 +1,31 @@
-#!/usr/bin/mono /usr/lib/iodine/bin/iodine.exe  
+#!/usr/bin/mono /usr/lib/iodine/iodine.exe  
+use os;
+
 use potassium.response;
 use potassium.request;
 use potassium.views;
 use potassium.router;
-use json;
 
 func main () {
-    urlList = list();
+    print ("\n\n"); 
+    urlList = List();
     urlList.add(router.URLItem("/", views.View(request.GetRequest(), 
                 indexView)));
     urlList.add(router.URLItem("/404", views.View(request.AnyRequest(), 
                 notFoundView)));
     urlSpec = router.URLSpec(urlList, "/404");
-    xRouter = router.Router(urlSpec, getEnv("PATH_INFO"));
+    xRouter = router.Router(urlSpec, os.getEnv("PATH_INFO"));
     
     xRouter.run();
-    x = hashMap();
 }
 
 func notFoundView (requestData) {
-    return response.TemplateResponse("cgi-bin/templates/404.html", hashMap());
+    return response.TemplateResponse("cgi-bin/templates/404.html", HashMap());
 }
 
 func indexView(requestData) {
-    return response.TemplateResponse("cgi-bin/templates/index.html", hashMap());
+    names = HashMap ();
+    names ["names"] = { "Bob", "Cam" };
+    return response.TemplateResponse("cgi-bin/templates/index.html", names);
 }
 

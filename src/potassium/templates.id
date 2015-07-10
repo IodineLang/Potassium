@@ -45,6 +45,9 @@ class TemplateEngine {
 
         dict["append"] = appendAccum;
         dict["__constants"] = constants;
+        dict["include"] = lambda (x) => {
+            return appendAccum (Template (x).render (dict));
+        };
        
         src = "func gen () {";
         foreach (token in tokens) {
