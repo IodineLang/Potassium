@@ -1,7 +1,12 @@
-# Potassium [![ion install loglib](https://img.shields.io/badge/ion%20install-potassium-blue.svg?style=flat-square)](https://github.com/IodineLang/Ion)
+# Potassium
 
+[![ion install potassium](https://img.shields.io/badge/ion%20install-potassium-blue.svg?style=flat-square)](https://github.com/IodineLang/Ion)
 ![version v0.1.0](https://img.shields.io/badge/version-v0.1.0-blue.svg?style=flat-square)
 ![deps](https://img.shields.io/badge/dependencies-loglib%20v0.1.0-blue.svg?style=flat-square)
+
+
+[![ion install potassium-dev](https://img.shields.io/badge/ion%20install-potassium--dev-lightgrey.svg?style=flat-square)](https://github.com/IodineLang/Ion) 
+![version v0.2.0-pre](https://img.shields.io/badge/version-v0.2.0--pre-lightgrey.svg?style=flat-square)
 
 Potassium is a powerful, flexible and downright awesome web framework for the [Iodine](https://github.com/IodineLang/Iodine)
 programming language. Potassium aims to help accelerate the development of your website by providing convenient, flexible base 
