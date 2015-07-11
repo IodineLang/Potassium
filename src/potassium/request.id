@@ -38,9 +38,10 @@ class URLEncodedParameters : Parameters {
 }
 
 class Request {
-    func Request (getParameters, postData) {
+    func Request (getParameters, postData, cookies) {
         self.parameters = getParameters;
         self.postData = postData;
+        self.cookies = cookies;
     }
 }
 
