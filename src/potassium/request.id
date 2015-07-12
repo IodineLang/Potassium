@@ -1,3 +1,6 @@
+use potassium.auth;
+use potassium.db;
+
 class Parameters {
     func Parameters (self, paramDict) {
         self.parameters = paramDict;
@@ -38,10 +41,20 @@ class URLEncodedParameters : Parameters {
 }
 
 class Request {
-    func Request (getParameters, postData, cookies) {
+    func Request (self, getParameters, postData, cookies) {
         self.parameters = getParameters;
         self.postData = postData;
         self.cookies = cookies;
+    }
+    
+    func sessionValid (self) {
+        if (self.cookies.contains ("id")) {
+            print ("\n\n");
+            _db = db.DatabaseSingleton.get ();
+            authHelper = auth.Auth (_db);
+            return authHelper.verifyToken (self.cookies ["id"]);
+        }
+        return false;
     }
 }
 

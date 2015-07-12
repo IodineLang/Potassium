@@ -13,7 +13,7 @@ class View {
     
     func run (self) {
         if (self.requestType.name == "*" || 
-            os.getEnv("REQUEST_METHOD") == self.requestType.name) {
+            os.getEnv ("REQUEST_METHOD") == self.requestType.name) {
             cookiesEnv = os.getEnv ("HTTP_COOKIE");
             cookies = request.URLEncodedParameters (cookiesEnv).parameters;
             
@@ -35,7 +35,7 @@ class View {
                 }
             }
             requestData = request.Request(getParameters, postParameters, 
-                                          cookies);
+            cookies);
             resp = self.responseFunc(requestData);
             print(resp.getResponse());
             return true;

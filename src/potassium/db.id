@@ -1,0 +1,20 @@
+use mysql;
+
+class DatabaseSingleton {
+    func initLazy (conStr) {
+        DatabaseSingleton.cstr = conStr;
+        DatabaseSingleton.db = null;
+    }
+
+    func set (db) {
+        DatabaseSingleton.cstr = null;
+        DatabaseSingleton.db = db;
+    }
+    
+    func get () {
+        if (DatabaseSingleton.cstr != null) {
+            DatabaseSingleton.db = mysql.openDatabase (DatabaseSingleton.cstr);
+        }
+        return DatabaseSingleton.db;
+    }
+}

@@ -3,10 +3,14 @@ use potassium.response;
 use potassium.request;
 use potassium.views;
 use potassium.router;
+use potassium.db;
+
 use json;
 use os;
 
 func main () {
+    db.DatabaseSingleton.initLazy ("Server=localhost;Database=test;Uid=root;" +
+                                   "Pwd=secret;");   
     urlList = List ();
     urlList.add(router.URLItem("/", views.View(request.GetRequest(), okView)));
     urlList.add(router.URLItem("/", views.View(request.PostRequest(), postView)));
@@ -28,12 +32,7 @@ func notFoundView (requestData) {
 
 func okView(requestData) {
     resp = HashMap ();
-    if (requestData.cookies.contains ("token")) {
-        resp["response"] = requestData.cookies ["token"];
-    }
-    else {
-        resp ["response"] = "No token set.";
-    }
+    resp ["response"] = requestData.sessionValid ();
     return response.JSONResponse(json.dump(resp), 200);
 }
 

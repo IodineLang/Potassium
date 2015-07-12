@@ -1,15 +1,20 @@
-#!/usr/bin/mono /usr/lib/iodine/bin/iodine.exe  
+#!/usr/bin/mono /usr/lib/iodine/iodine.exe  
+use potassium.db;
+db.DatabaseSingleton.initLazy (CONNECTION_STRING);
+
 use potassium.response;
 use potassium.request;
 use potassium.views;
 use potassium.router;
 use potassium.auth;
+
+use os;
 use json;
 use mysql;
 
 CONNECTION_STRING = "Server=localhost;Database=test;Uid=root;Pwd=secret;"
 
-func main (args) {
+func main (args) {   
     if (args.getSize() == 1 && args[0] == "migrate") {
         migrate();
         return;
@@ -18,7 +23,7 @@ func main (args) {
         createSuperUser(args[1], args[2], args[3]);
         return;
     }
-    urlList = list();
+    urlList = List();
     urlList.add(router.URLItem("/", views.View(request.GetRequest(), okView)));
     urlList.add(router.URLItem("/login", views.View(request.PostRequest(), 
                                                      loginView)));
@@ -31,27 +36,27 @@ func main (args) {
     urlList.add(router.URLItem("/checkadmin", views.View(request.PostRequest(), 
                                                          checkAdminView)));
     urlSpec = router.URLSpec(urlList, "/404");
-    xRouter = router.Router(urlSpec, getEnv("PATH_INFO"));
+    xRouter = router.Router(urlSpec, os.getEnv("PATH_INFO"));
     xRouter.run();
 }
 
 func notFoundView (requestData) {
-    resp = hashMap();
+    resp = HashMap();
     resp["response"] = "Unknown request.";
     return response.JSONResponse(json.dump(resp), 404);
 }
 
 func okView(requestData) {
-    resp = hashMap();
+    resp = HashMap();
     resp["response"] = "Welcome!";
     return response.JSONResponse(json.dump(resp), 200);
 }
 
 func verifyView(requestData) {
-    authHelper = auth.Auth(mysql.openDatabase(CONNECTION_STRING));
+    authHelper = auth.Auth(db.DatabaseSingleton.get ());
     token = requestData.postData.getParam("token");
     username = authHelper.verifyToken(token);
-    resp = hashMap();
+    resp = HashMap();
     if (username != null) {
         resp["message"] = "Hello, " + username;
         return response.JSONResponse(json.dump(resp), 200);
@@ -63,11 +68,10 @@ func verifyView(requestData) {
 }
 
 func checkAdminView(requestData) {
-    print("\n\n");
-    authHelper = auth.Auth(mysql.openDatabase(CONNECTION_STRING));
+    authHelper = auth.Auth(db.DatabaseSingleton.get ());
     token = requestData.postData.getParam("token");
     username = authHelper.verifyToken(token);
-    resp = hashMap();
+    resp = HashMap();
     if (username != null) {
         user = authHelper.getUser(username);
         resp["admin"] = Str(user["isadmin"]);
@@ -80,11 +84,11 @@ func checkAdminView(requestData) {
 }
 
 func registerView(requestData) {
-    authHelper = auth.Auth(mysql.openDatabase(CONNECTION_STRING));
+    authHelper = auth.Auth(db.DatabaseSingleton.get ());
     username = requestData.postData.getParam("username");
     email = requestData.postData.getParam("email");
     pass = requestData.postData.getParam("password");
-    resp = hashMap();
+    resp = HashMap();
     if (authHelper.createUser(username, pass, email)) {
         resp["message"] = "Account creation successful for user " + username;
         return response.JSONResponse(json.dump(resp), 200);
@@ -96,11 +100,11 @@ func registerView(requestData) {
 }
 
 func loginView(requestData) {
-    authHelper = auth.Auth(mysql.openDatabase(CONNECTION_STRING));
+    authHelper = auth.Auth(db.DatabaseSingleton.get ());
     username = Str(requestData.postData.getParam("username"));
     pass = Str(requestData.postData.getParam("password"));
     token = authHelper.createToken(username, pass);
-    resp = hashMap();
+    resp = HashMap();
     if (token != null) {
         resp["token"] = token;
         return response.JSONResponse(json.dump(resp), 200);
