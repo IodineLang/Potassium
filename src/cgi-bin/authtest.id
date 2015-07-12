@@ -1,7 +1,5 @@
 #!/usr/bin/mono /usr/lib/iodine/iodine.exe  
 use potassium.db;
-db.DatabaseSingleton.initLazy (CONNECTION_STRING);
-
 use potassium.response;
 use potassium.request;
 use potassium.views;

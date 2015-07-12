@@ -13,7 +13,7 @@ func main () {
                                    "Pwd=secret;");   
     urlList = List ();
     urlList.add(router.URLItem("/", views.View(request.GetRequest(), okView)));
-    urlList.add(router.URLItem("/", views.View(request.PostRequest(), postView)));
+    urlList.add(router.URLItem("/auth", views.View(request.GetRequest(), postView)));
     urlList.add(router.URLItem("/bye", views.View(request.GetRequest(), 
                                                   byeView)));
     urlList.add(router.URLItem("/404", views.View(request.AnyRequest(), 
@@ -42,6 +42,8 @@ func byeView(requestData) {
     return response.JSONResponse(json.dump(resp), 200);
 }
 
-func postView(requestData) {
-    return response.HTMLResponse("<h1>Heh.</h1>", 200);
+func postView(requestData) {   
+    resp = response.HTMLResponse("<h1>Hey!</h1>", 200)
+    resp.setAuthCookie ("user", "user");
+    return resp;
 }

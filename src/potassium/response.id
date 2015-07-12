@@ -1,4 +1,6 @@
 use potassium.templates;
+use potassium.db;
+use potassium.auth;
 
 class ResponseHeaders {
     func getStatusCode (self, code) {
@@ -31,12 +33,22 @@ class ResponseHeaders {
 
 class Response {
     func Response (self, response, statusCode, mime) {
-        self.headers = ResponseHeaders(statusCode, mime).generate();
+        self.headers = ResponseHeaders(statusCode, mime);
         self.response = response;
     }
     
     func getResponse(self) {
-        return self.headers + self.response;
+        return self.headers.generate () + self.response;
+    }
+    
+    func setAuthCookie (self, user, pass) {
+        authHelper = auth.Auth (db.DatabaseSingleton.get ());
+        tok = authHelper.createToken (user, pass);
+        if (tok != null) {
+            self.headers.addHeader ("Set-Cookie", "id={}".format (tok));
+            return true;
+        }
+        return false;
     }
 }
 

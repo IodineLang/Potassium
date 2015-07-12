@@ -49,7 +49,6 @@ class Request {
     
     func sessionValid (self) {
         if (self.cookies.contains ("id")) {
-            print ("\n\n");
             _db = db.DatabaseSingleton.get ();
             authHelper = auth.Auth (_db);
             return authHelper.verifyToken (self.cookies ["id"]);
