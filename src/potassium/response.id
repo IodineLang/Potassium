@@ -61,9 +61,20 @@ class HTMLResponse : Response {
 
 class TemplateResponse : HTMLResponse {
     func TemplateResponse (self, fileName, context) {
-        super(templates.Template(fileName).render(context), 200);
+        super("<h1>Template Rendering Failed</h1>", 200);
+        self.template = templates.Template (fileName);
+        self.context = context;
+    }
+    
+    func getResponse (self) {  
+        return self.headers.generate () + self.template.render (self.context);
+    }
+
+    func setTemplate (self, fileName) {
+        self.template = templates.Template (fileName);
     }
 }
+
 
 class JSONResponse : Response {
     func JSONResponse (self, response, statusCode) {

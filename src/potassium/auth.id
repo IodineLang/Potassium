@@ -2,9 +2,11 @@ use hash;
 use random;
 use mysql; 
 
+use potassium.db;
+
 class Auth {
-    func Auth(self, db) {
-        self.db = db;
+    func Auth(self) {
+        self.db = db.DatabaseSingleton.get ();
     }
     
     func _hash (self, pass, salt) {

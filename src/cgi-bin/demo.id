@@ -1,0 +1,68 @@
+#!/usr/bin/iodine
+use os;
+
+use potassium.db;
+use potassium.auth;
+use potassium.views;
+use potassium.response;
+use potassium.request;
+use potassium.router;
+
+CONNECTION_STRING = "Server=localhost;Database=test;Uid=root;Pwd=secret;"
+func main () {
+    db.DatabaseSingleton.initLazy (CONNECTION_STRING);
+    urls = List ();
+    urls.add (router.URLItem ("/", views.View (request.GetRequest (), 
+                                               indexView)));
+    
+    urls.add (router.URLItem ("/login", views.View (request.GetRequest (),
+                                                    loginView)));
+                                                    
+    urls.add (router.URLItem ("/login", views.View (request.PostRequest (),
+                                                    loginSubmitView)));
+    
+    urlSpec = router.URLSpec (urls, "/login");
+    appRouter = router.Router (urlSpec, os.getEnv ("PATH_INFO"));
+    appRouter.run ();
+}
+
+func indexView (requestData) {
+    ctxt = HashMap ();
+    ctxt ["logged_in"] = requestData.sessionValid ();
+    return response.TemplateResponse ("cgi-bin/templates/index.html", ctxt);
+}
+
+func loginView (requestData) {
+    ctxt = HashMap ();
+    ctxt ["error"] = false;
+    return response.TemplateResponse ("cgi-bin/templates/login.html", 
+                                      ctxt);
+}
+
+func loginSubmitView (requestData) {
+    uname = requestData.postData.getParam ("username");
+    passwd = requestData.postData.getParam ("password");
+    ctxt = HashMap ();
+    
+    if (uname == null || passwd == null) {
+        ctxt ["error"] = true;
+        ctxt ["errormessage"] = "Invalid form submission.";
+        return response.TemplateResponse ("cgi-bin/templates/login.html", 
+                                          ctxt);
+    }
+    
+    ctxt ["error"] = false;
+    resp = response.TemplateResponse ("cgi-bin/templates/login.html", ctxt);
+    if (resp.setAuthCookie (uname, passwd)) {
+        ctxt ["logged_in"] = uname;
+        resp.setTemplate ("cgi-bin/templates/index.html");
+        return resp;
+    }
+    else {
+        ctxt ["error"] = true;
+        ctxt ["errormessage"] = "Invalid username/password combination!";
+        resp.context = ctxt;
+        return resp;
+    }
+    return resp;
+}
