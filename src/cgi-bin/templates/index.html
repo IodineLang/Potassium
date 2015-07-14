@@ -1,15 +1,73 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.0.1/semantic.min.css" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.0.1/semantic.min.js"></script>
         <title>
             Test site
         </title>
     </head>
     <body>
-        <h1>
-            Hello
-            {% if (Str (logged_in) != "False") {
-               append (", " + logged_in) 
-            }%}!</h1>
+        {% if (Str (logged_in) == "False") {
+        include ("cgi-bin/templates/header.html");
+        %}
+
+        <div class="main ui container">
+        <div class="ui container">
+            <h1>You don't seem to be logged in. This page is secret.</h1>
+            <div class="ui two column middle aligned very relaxed stackable grid" style="position:relative">
+                <div class="column">
+                    <form class="ui form" action="login" method="post">
+                        <div class="field">
+                            <label>Username</label>
+                            <div class="ui left icon input">
+                                <input type="text" name="username" placeholder="Username" />
+                                <i class="user icon"></i>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label>Password</label>
+                            <div class="ui left icon input">
+                                <input name="password" type="password" />
+                                <i class="lock icon"></i>
+                            </div>
+                        </div>
+                        <input type="submit" class="ui blue submit button"></input>
+                    </form>
+                </div>
+                <div class="ui vertical divider">
+                 Or
+                </div>
+                <div class="center aligned column">
+                    <div class="ui big green labeled icon button">
+                        <i class="signup icon"></i>
+                         Sign Up
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+        {%}
+        else {%}
+            <div class="ui inverted vertical masthead center aligned segment">
+            {%
+            include ("cgi-bin/templates/header.html");
+            %}
+                <div class="ui container">
+
+                <div class="ui text container">
+                    <h1 class="ui inverted header">
+                    Potassium
+                    </h1>
+                    <h2><em>The</em> superpowered web framework for Iodine.<p></p>
+                        <a class="ui huge primary button" href="https://github.com/IodineLang/Potassium">GitHub <i class="right arrow icon"></i></a>
+                    </h2>
+                    <br />
+                </div>
+                </div>
+            </div>
+        {%}%}
+        {%include ("cgi-bin/templates/footer.html")%}
     </body>
 </html>
