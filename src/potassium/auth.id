@@ -17,6 +17,12 @@ class Auth {
         return (pass, salt);
     }
     
+    func destroyToken (self, user) {
+        unameParam = self.db.createParam("uname", user);
+        self.db.executeSqlPrepared("DELETE FROM `Tokens` WHERE username
+                                             = @uname;", unameParam);
+    }
+    
     func createToken (self, user, rawPass) {
         if (!self.verifyPass(user, rawPass)) {
             return null;
@@ -39,13 +45,13 @@ class Auth {
         result = self.db.querySqlPrepared("SELECT (username) FROM `Tokens` WHERE 
                                           token = @token;", tokenParam);
         if (result.getSize() == 0) {
-            return null;
+            return (false, null);
         }
         else if (result.getSize() > 1) {
             raise("Database corrupt!");
         }
         
-        return result[0]["username"];
+        return (true, result[0]["username"]);
     }
     
     func verifyPass (self, username, rawPass) {

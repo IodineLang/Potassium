@@ -9,7 +9,8 @@
         </title>
     </head>
     <body>
-        {% if (Str (logged_in) == "False") {
+        {%
+        if (logged_in == false) {
         include ("cgi-bin/templates/header.html");
         %}
 

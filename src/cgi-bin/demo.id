@@ -8,7 +8,8 @@ use potassium.response;
 use potassium.request;
 use potassium.router;
 
-CONNECTION_STRING = "Server=localhost;Database=test;Uid=root;Pwd=secret;"
+CONNECTION_STRING = "Server=localhost;Database=test;Uid=root;Pwd=secret;";
+URLBASE = "/cgi-bin/demo.id";
 func main () {
     db.DatabaseSingleton.initLazy (CONNECTION_STRING);
     urls = List ();
@@ -20,6 +21,9 @@ func main () {
                                                     
     urls.add (router.URLItem ("/login", views.View (request.PostRequest (),
                                                     loginSubmitView)));
+                                                   
+    urls.add (router.URLItem ("/logout", views.View (request.GetRequest (),
+                                                    logoutView)));
     
     urlSpec = router.URLSpec (urls, "/login");
     appRouter = router.Router (urlSpec, os.getEnv ("PATH_INFO"));
@@ -30,6 +34,18 @@ func indexView (requestData) {
     ctxt = HashMap ();
     ctxt ["logged_in"] = requestData.sessionValid ();
     return response.TemplateResponse ("cgi-bin/templates/index.html", ctxt);
+}
+
+func logoutView (requestData) {
+    uri = URLBASE + "/";
+    resp = response.RedirectResponse (uri);
+    try {
+        resp.destroyAuthCookie (requestData.user ["username"]);
+    }
+    except (e) {
+        
+    }
+    return resp;
 }
 
 func loginView (requestData) {
@@ -54,7 +70,7 @@ func loginSubmitView (requestData) {
     ctxt ["error"] = false;
     resp = response.TemplateResponse ("cgi-bin/templates/login.html", ctxt);
     if (resp.setAuthCookie (uname, passwd)) {
-        ctxt ["logged_in"] = uname;
+        ctxt ["logged_in"] = true;
         resp.setTemplate ("cgi-bin/templates/index.html");
         return resp;
     }

@@ -45,16 +45,20 @@ class Request {
         self.parameters = getParameters;
         self.postData = postData;
         self.cookies = cookies;
+        self.sessionState = self.sessionValid ();
     }
     
     func sessionValid (self) {
         if (self.cookies.contains ("id")) {
-            _db = db.DatabaseSingleton.get ();
-            authHelper = auth.Auth (_db);
-            return authHelper.verifyToken (self.cookies ["id"]);
+            authHelper = auth.Auth ();
+            res = authHelper.verifyToken (self.cookies ["id"]);
+            self.user = HashMap ();
+            self.user ["username"] = res [1];
+            return res [0];
         }
         return false;
     }
+    
 }
 
 class RequestType {

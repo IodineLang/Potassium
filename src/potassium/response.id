@@ -6,6 +6,7 @@ class ResponseHeaders {
     func getStatusCode (self, code) {
         statusNames = HashMap();
         statusNames[200] = "OK";
+        statusNames[302] = "Found";
         statusNames[400] = "Bad Request";
         statusNames[403] = "Forbidden";
         statusNames[404] = "Not Found";
@@ -25,7 +26,9 @@ class ResponseHeaders {
     func generate (self) {
         self.addHeader("Status", Str (self.status) + " " + 
                                  self.getStatusCode(self.status));
-        self.addHeader("Content-type", self.mime);
+        if (self.mime != "") {
+            self.addHeader("Content-type", self.mime);
+        }
         self.headers = self.headers + "\n";
         return self.headers;
     }
@@ -49,6 +52,13 @@ class Response {
             return true;
         }
         return false;
+    }
+    
+    func destroyAuthCookie (self, user) {
+        authHelper = auth.Auth ();
+        authHelper.destroyToken (user);
+        self.headers.addHeader ("Set-Cookie", "id=;expires=expires="
+                                + "Thu, 01 Jan 1970 00:00:00 UTC");
     }
 }
 
@@ -75,6 +85,12 @@ class TemplateResponse : HTMLResponse {
     }
 }
 
+class RedirectResponse : Response {
+    func RedirectResponse (self, uri) {
+        super ("<a href=\"{}\">Redirect</a>".format (uri), 302, "text/html");
+        self.headers.addHeader ("Location", "{}".format (uri));
+    }
+}
 
 class JSONResponse : Response {
     func JSONResponse (self, response, statusCode) {
