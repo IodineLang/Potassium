@@ -7,9 +7,8 @@ class Router {
     func run (self) {
         foreach(urlItem in self.urlSpec.items) {
             if (urlItem.path == self.pathInfo) {
-                if (urlItem.view.run()) {
-                    return;
-                }
+                urlItem.view.run ();
+                return;
             }
         }
         self.urlSpec.notFound.view.run();

@@ -10,6 +10,7 @@ class ResponseHeaders {
         statusNames[400] = "Bad Request";
         statusNames[403] = "Forbidden";
         statusNames[404] = "Not Found";
+        statusNames[405] = "Method Not Allowed";
         return statusNames[code];
     }
     
@@ -89,6 +90,12 @@ class RedirectResponse : Response {
     func RedirectResponse (self, uri) {
         super ("<a href=\"{}\">Redirect</a>".format (uri), 302, "text/html");
         self.headers.addHeader ("Location", "{}".format (uri));
+    }
+}
+
+class MethodNotAllowedResponse : Response {
+    func MethodNotAllowedResponse (self) {
+        super ("<h1>Method not allowed!</h1>", 405, "text/html");
     }
 }
 

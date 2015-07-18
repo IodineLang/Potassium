@@ -2,44 +2,53 @@ use json;
 use os;
 
 use potassium.request;
+use potassium.response;
 
-class View { 
-    func View (self, requestType, responseFunc) {
-        # responseDelegate returns a response object (duck typing helps
-        # here!)
-        self.responseFunc = responseFunc;
-        self.requestType = requestType;
-    }
-    
+class View {
     func run (self) {
-        if (self.requestType.name == "*" || 
-            os.getEnv ("REQUEST_METHOD") == self.requestType.name) {
-            cookiesEnv = os.getEnv ("HTTP_COOKIE");
-            cookies = request.URLEncodedParameters (cookiesEnv).parameters;
-            
-            getParameters = null;
-            if (self.requestType.queryParams) {
-                getParameters = request.URLEncodedParameters(os.getEnv(
-                                                             "QUERY_STRING"));   
+        type = os.getEnv ("REQUEST_METHOD");
+        cookiesEnv = os.getEnv ("HTTP_COOKIE");
+        cookies = request.URLEncodedParameters (cookiesEnv).parameters;
+             
+        getParameters = null;
+        getParameters = request.URLEncodedParameters(os.getEnv("QUERY_STRING"));   
+        postParameters = null;
+        if (type == "POST") {
+            contentType = os.getEnv("CONTENT_TYPE");
+            if (contentType == "application/json") {
+                data = stdin.read(Int(os.getEnv("CONTENT_LENGTH")));
+                postParameters = request.Parameters(json.parse(data));
             }
-            postParameters = null;
-            if (self.requestType.postParams) {
-                contentType = os.getEnv("CONTENT_TYPE");
-                if (contentType == "application/json") {
-                    data = stdin.read(Int(os.getEnv("CONTENT_LENGTH")));
-                    postParameters = request.Parameters(json.parse(data));
-                }
-                else if (contentType == "application/x-www-form-urlencoded") {
-                    data = stdin.read(Int(os.getEnv("CONTENT_LENGTH")));
-                    postParameters = request.URLEncodedParameters(data);
-                }
+            else if (contentType == "application/x-www-form-urlencoded") {
+                data = stdin.read(Int(os.getEnv("CONTENT_LENGTH")));
+                postParameters = request.URLEncodedParameters(data);
             }
-            requestData = request.Request(getParameters, postParameters, 
-            cookies);
-            resp = self.responseFunc(requestData);
-            print(resp.getResponse());
-            return true;
         }
-        return false;
+        requestData = request.Request(getParameters, postParameters, cookies);
+        
+        try {
+            if (type == "GET") {
+                print (self.get (requestData).getResponse ());
+                return;
+            }
+            else if (type == "POST") {
+                print (self.post (requestData).getResponse ());
+                return;
+            }
+            else {
+                print (self.methodNotAllowed ().getResponse ());
+                return;
+            }
+        }
+        except (e as AttributeNotFoundException) {
+            print (self.methodNotAllowed ().getResponse ());
+            return;
+        }
+        
+        print (self.methodNotAllowed ().getResponse ());
     }      
+    
+    func methodNotAllowed (self) {
+        return response.MethodNotAllowedResponse ();
+    }
 }
