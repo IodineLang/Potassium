@@ -1,5 +1,4 @@
 use potassium.auth;
-use potassium.db;
 
 class Parameters {
     func Parameters (self, paramDict) {
@@ -21,10 +20,10 @@ class URLEncodedParameters : Parameters {
         super(null);
         self.parameters = self.parse(queryString);
     }
-    
+
     func parse (self, queryString) {
         if (queryString == null) {
-            return HashMap();
+            return HashMap ();
         }
         pairs = queryString.split("&");
         if (pairs[0] == "") {
@@ -47,7 +46,7 @@ class Request {
         self.cookies = cookies;
         self.sessionState = self.sessionValid ();
     }
-    
+
     func sessionValid (self) {
         if (self.cookies.contains ("id")) {
             authHelper = auth.Auth ();
@@ -58,7 +57,7 @@ class Request {
         }
         return false;
     }
-    
+
 }
 
 class RequestType {

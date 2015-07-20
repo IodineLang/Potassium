@@ -1,0 +1,28 @@
+class Settings {
+    func init () {
+        Settings.settings = HashMap ();
+    }
+
+    func get (name) {
+        try {
+            return Settings.settings [name];
+        }
+        except (e as AttributeNotFoundException, KeyNotFoundException) {
+            if (e is AttributeNotFoundException) {
+                Settings.settings = HashMap ();
+            }
+
+            return null;
+        }
+    }
+
+    func set (name, value) {
+        try {
+            Settings.settings [name] = value;
+        }
+        except (e as AttributeNotFoundException) {
+            Settings.settings = HashMap ();
+            Settings.settings [name] = value;
+        }
+    }
+}

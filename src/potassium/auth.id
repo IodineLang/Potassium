@@ -1,6 +1,6 @@
 use hash;
 use random;
-use mysql; 
+use mysql;
 
 use potassium.db;
 
@@ -8,7 +8,7 @@ class Auth {
     func Auth(self) {
         self.db = db.DatabaseSingleton.get ();
     }
-    
+
     func _hash (self, pass, salt) {
         if (salt == "") {
             salt = random.cryptoString(16);
@@ -16,13 +16,13 @@ class Auth {
         hashPass = Str(hash.sha512(Str(salt) + Str(pass)));
         return (pass, salt);
     }
-    
+
     func destroyToken (self, user) {
         unameParam = self.db.createParam("uname", user);
         self.db.executeSqlPrepared("DELETE FROM `Tokens` WHERE username
                                              = @uname;", unameParam);
     }
-    
+
     func createToken (self, user, rawPass) {
         if (!self.verifyPass(user, rawPass)) {
             return null;
@@ -34,15 +34,15 @@ class Auth {
         res = hash.sha512(token);
         tokenParam = self.db.createParam("token", res);
         self.db.executeSqlPrepared("INSERT INTO `Tokens` (username, token)
-                                   VALUES (@uname, @token);", unameParam, 
+                                   VALUES (@uname, @token);", unameParam,
                                    tokenParam);
-        return token;    
+        return token;
     }
-    
+
     func verifyToken (self, token) {
         token = Str(hash.sha512(token));
         tokenParam = self.db.createParam("token", token);
-        result = self.db.querySqlPrepared("SELECT (username) FROM `Tokens` WHERE 
+        result = self.db.querySqlPrepared("SELECT (username) FROM `Tokens` WHERE
                                           token = @token;", tokenParam);
         if (result.getSize() == 0) {
             return (false, null);
@@ -50,13 +50,13 @@ class Auth {
         else if (result.getSize() > 1) {
             raise("Database corrupt!");
         }
-        
+
         return (true, result[0]["username"]);
     }
-    
+
     func verifyPass (self, username, rawPass) {
         unameParam = self.db.createParam("uname", username);
-        result = self.db.querySqlPrepared("SELECT salt, pass FROM `Users` 
+        result = self.db.querySqlPrepared("SELECT salt, pass FROM `Users`
                                          WHERE username = @uname;", unameParam);
         if (result.getSize() == 0) {
             return false;
@@ -71,7 +71,7 @@ class Auth {
         }
         return false;
     }
-    
+
     func _createUser (self, username, rawPass, email, isAdmin) {
         if (isAdmin) {
             isAdmin = 1;
@@ -87,31 +87,31 @@ class Auth {
         saltParam = self.db.createParam("salt", salt);
         emailParam = self.db.createParam("email", email);
         isadmin = self.db.createParam("isadmin", isAdmin);
-        self.db.executeSqlPrepared("INSERT INTO `Users` (username, email, pass, 
-               salt, isadmin) VALUES (@uname, @email, @pass, @salt, @isadmin);", 
+        self.db.executeSqlPrepared("INSERT INTO `Users` (username, email, pass,
+               salt, isadmin) VALUES (@uname, @email, @pass, @salt, @isadmin);",
                unameParam, passParam, saltParam, emailParam, isadmin);
         return true;
     }
-    
+
     func createUser (self, username, rawPass, email) {
         return self._createUser(username, rawPass, email, false);
     }
-    
+
     func createSuperUser (self, username, rawPass, email) {
         return self._createUser(username, rawPass, email, true);
     }
-    
+
     func getUser(self, username) {
         unameParam = self.db.createParam("uname", username);
-        users = self.db.querySqlPrepared("SELECT id, username, email, isadmin 
+        users = self.db.querySqlPrepared("SELECT id, username, email, isadmin
                                          FROM `Users` WHERE username = @uname",
                                          unameParam);
         if (users.getSize() == 0) {
             return null;
         }
-        
+
         user = users[0];
-        if (user["isadmin"] == "True") { 
+        if (user["isadmin"] == "True") {
             user["isadmin"] = true;
         }
         else {
@@ -119,12 +119,12 @@ class Auth {
         }
         return user;
     }
-    
+
     func migrate (self) {
         self.db.executeSql("
 DROP TABLE IF EXISTS `Users`;
 DROP TABLE IF EXISTS `Tokens`;
-		
+
 CREATE TABLE `Users` (
   `id` INTEGER NULL AUTO_INCREMENT DEFAULT NULL,
   `username` VARCHAR(50) NOT NULL UNIQUE,

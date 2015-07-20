@@ -1,20 +1,31 @@
 use mysql;
+use reflection;
+
+use potassium.settings;
+
 
 class DatabaseSingleton {
-    func initLazy (conStr) {
-        DatabaseSingleton.cstr = conStr;
-        DatabaseSingleton.db = null;
-    }
-
     func set (db) {
-        DatabaseSingleton.cstr = null;
         DatabaseSingleton.db = db;
     }
-    
+
     func get () {
-        if (DatabaseSingleton.cstr != null) {
-            DatabaseSingleton.db = mysql.openDatabase (DatabaseSingleton.cstr);
+        if (reflection.hasAttribute (DatabaseSingleton, "db")) {
+            return DatabaseSingleton.db;
         }
-        return DatabaseSingleton.db;
+        else {
+            _db = settings.Settings.get ("database_connectionString");
+            if (_db == null) {
+                raise Exception ("database_connectionString setting is not set!");
+                return;
+            }
+
+            DatabaseSingleton.db = mysql.openDatabase (_db);
+            if (DatabaseSingleton.db == null) {
+                raise ("Database setup failed. Verify connection string.");
+            }
+
+            return DatabaseSingleton.get ();
+        }
     }
 }

@@ -1,5 +1,6 @@
 use json;
 use os;
+use reflection;
 
 use potassium.request;
 use potassium.response;
@@ -9,9 +10,9 @@ class View {
         type = os.getEnv ("REQUEST_METHOD");
         cookiesEnv = os.getEnv ("HTTP_COOKIE");
         cookies = request.URLEncodedParameters (cookiesEnv).parameters;
-             
+
         getParameters = null;
-        getParameters = request.URLEncodedParameters(os.getEnv("QUERY_STRING"));   
+        getParameters = request.URLEncodedParameters(os.getEnv("QUERY_STRING"));
         postParameters = null;
         if (type == "POST") {
             contentType = os.getEnv("CONTENT_TYPE");
@@ -25,29 +26,19 @@ class View {
             }
         }
         requestData = request.Request(getParameters, postParameters, cookies);
-        
-        try {
-            if (type == "GET") {
-                print (self.get (requestData).getResponse ());
-                return;
-            }
-            else if (type == "POST") {
-                print (self.post (requestData).getResponse ());
-                return;
-            }
-            else {
-                print (self.methodNotAllowed ().getResponse ());
-                return;
-            }
-        }
-        except (e as AttributeNotFoundException) {
-            print (self.methodNotAllowed ().getResponse ());
+        if (type == "GET" && reflection.hasAttribute (self, "get")) {
+            print (self.get (requestData).getResponse ());
             return;
         }
-        
+        else if (type == "POST" && reflection.hasAttribute (self, "post")) {
+            print (self.post (requestData).getResponse ());
+            return;
+        }
+
         print (self.methodNotAllowed ().getResponse ());
-    }      
-    
+        return;
+    }
+
     func methodNotAllowed (self) {
         return response.MethodNotAllowedResponse ();
     }

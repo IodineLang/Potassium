@@ -7,15 +7,15 @@ class Template {
         self.template = fd.readAllText ();
         self.engine = TemplateEngine (self.template);
     }
-    
-    # Takes a hashMap for context with all the named variables to be passed to 
+
+    # Takes a hashMap for context with all the named variables to be passed to
     # the template.
     func render (self, context) {
         return self.engine.compile (context);
     }
 }
 
-# Constants for lexer 
+# Constants for lexer
 
 TOKEN_HTML = 0;
 TOKEN_IODINE_CODE = 1;
@@ -28,7 +28,7 @@ class TemplateToken {
 }
 
 class TemplateEngine {
-    
+
     func TemplateEngine (self, source) {
         self.length = source.getSize ();
         self.source = source;
@@ -37,7 +37,7 @@ class TemplateEngine {
     func compile (self, dict) {
         self.position = 0;
         tokens = self.tokenize ();
-        constants = List (); 
+        constants = List ();
         accum = "";
         appendAccum = lambda (s) => {
             accum += Str (s);
@@ -48,7 +48,7 @@ class TemplateEngine {
         dict["include"] = lambda (x) => {
             return appendAccum (Template (x).render (dict));
         };
-       
+
         src = "func gen () {";
         foreach (token in tokens) {
             if (token.type == TOKEN_HTML) {
@@ -67,7 +67,7 @@ class TemplateEngine {
         return accum;
     }
 
-    
+
 
     func tokenize (self) {
         myTokens = List ();
@@ -101,7 +101,7 @@ class TemplateEngine {
         }
         self.readChar ();
         self.readChar ();
-    
+
         return accum;
     }
 
@@ -133,4 +133,3 @@ class TemplateEngine {
         return self.source[self.position - 1];
     }
 }
-

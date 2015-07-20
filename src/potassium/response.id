@@ -13,19 +13,19 @@ class ResponseHeaders {
         statusNames[405] = "Method Not Allowed";
         return statusNames[code];
     }
-    
+
     func ResponseHeaders (self, statusCode, mime) {
         self.status = statusCode;
         self.mime = mime;
         self.headers = "";
     }
-    
+
     func addHeader(self, header, value) {
         self.headers = self.headers + header + ": " + value + "\n";
     }
-    
+
     func generate (self) {
-        self.addHeader("Status", Str (self.status) + " " + 
+        self.addHeader("Status", Str (self.status) + " " +
                                  self.getStatusCode(self.status));
         if (self.mime != "") {
             self.addHeader("Content-type", self.mime);
@@ -40,11 +40,11 @@ class Response {
         self.headers = ResponseHeaders(statusCode, mime);
         self.response = response;
     }
-    
+
     func getResponse(self) {
         return self.headers.generate () + self.response;
     }
-    
+
     func setAuthCookie (self, user, pass) {
         authHelper = auth.Auth (db.DatabaseSingleton.get ());
         tok = authHelper.createToken (user, pass);
@@ -54,7 +54,7 @@ class Response {
         }
         return false;
     }
-    
+
     func destroyAuthCookie (self, user) {
         authHelper = auth.Auth ();
         authHelper.destroyToken (user);
@@ -67,7 +67,7 @@ class HTMLResponse : Response {
     func HTMLResponse (self, response, statusCode) {
         super(response, statusCode, "text/html");
     }
-    
+
 }
 
 class TemplateResponse : HTMLResponse {
@@ -76,8 +76,8 @@ class TemplateResponse : HTMLResponse {
         self.template = templates.Template (fileName);
         self.context = context;
     }
-    
-    func getResponse (self) {  
+
+    func getResponse (self) {
         return self.headers.generate () + self.template.render (self.context);
     }
 
@@ -104,4 +104,3 @@ class JSONResponse : Response {
         super(response, statusCode, "application/json");
     }
 }
-
