@@ -26,7 +26,7 @@ func main () {
 }
 
 @views.functionView ("GET")
-func test (self, req) {
+func test (req) {
     return response.HTMLResponse ("<h1>Die</h1>", 200);
 }
 
