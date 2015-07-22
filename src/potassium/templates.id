@@ -6,6 +6,7 @@ class Template {
         fd = open (fileName, "r");
         self.template = fd.readAllText ();
         self.engine = TemplateEngine (self.template);
+        fd.close ();
     }
 
     # Takes a hashMap for context with all the named variables to be passed to

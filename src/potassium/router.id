@@ -3,12 +3,13 @@ class Router {
         self.urlSpec = urlSpec;
         self.pathInfo = pathInfo;
     }
-    
+
     func run (self) {
         foreach(urlItem in self.urlSpec.items) {
             if (urlItem.path == self.pathInfo) {
-                urlItem.view.run ();
-                return;
+                if (urlItem.view.run ()) {
+                    return;
+                }
             }
         }
         self.urlSpec.notFound.view.run();
@@ -29,5 +30,5 @@ class URLItem {
         self.path = path;
         self.view = view;
     }
-    
+
 }

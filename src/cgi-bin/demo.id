@@ -18,10 +18,16 @@ func main () {
     urls.add (router.URLItem ("/", IndexView ()));
     urls.add (router.URLItem ("/login", LoginView ()));
     urls.add (router.URLItem ("/logout", LogoutView ()));
+    urls.add (router.URLItem ("/fnview", test))
 
     urlSpec = router.URLSpec (urls, "/");
     appRouter = router.Router (urlSpec, os.getEnv ("PATH_INFO"));
     appRouter.run ();
+}
+
+@views.functionView ("GET")
+func test (self, req) {
+    return response.HTMLResponse ("<h1>Die</h1>", 200);
 }
 
 class IndexView : View {
