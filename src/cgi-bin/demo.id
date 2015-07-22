@@ -1,7 +1,6 @@
 #!/usr/bin/iodine
 use os;
 
-use potassium.db;
 use potassium.auth;
 use View from potassium.views;
 use potassium.response;
@@ -46,7 +45,7 @@ class LogoutView : View {
         uri = URLBASE + "/";
         resp = response.RedirectResponse (uri);
         try {
-            resp.destroyAuthCookie (requestData.user ["username"]);
+            auth.CookieAuth.logout (resp, requestData.user ["username"]);
         }
         except (e) {
 
@@ -80,16 +79,9 @@ class LoginView : View {
                                               ctxt);
         }
 
-        ctxt ["error"] = false;
-        resp = response.TemplateResponse ("cgi-bin/templates/login.html", ctxt);
-        if (resp.setAuthCookie (uname, passwd)) {
-            ctxt ["logged_in"] = true;
-            resp.setTemplate ("cgi-bin/templates/index.html");
-        }
-        else {
-            ctxt ["error"] = true;
-            ctxt ["errormessage"] = "Invalid username/password combination!";
-            resp.context = ctxt;
+        resp = response.RedirectResponse (URLBASE + "/login");
+        if (auth.CookieAuth.login (resp, uname, passwd)) {
+            resp.uri = URLBASE + "/";
         }
         return resp;
     }

@@ -4,6 +4,25 @@ use mysql;
 
 use potassium.db;
 
+class CookieAuth {
+    func login (res, user, pass) {
+        authHelper = Auth (db.DatabaseSingleton.get ());
+        tok = authHelper.createToken (user, pass);
+        if (tok != null) {
+            res.headers.addHeader ("Set-Cookie", "id={}".format (tok));
+            return true;
+        }
+        return false;
+    }
+
+    func logout (res, user) {
+        authHelper = Auth ();
+        authHelper.destroyToken (user);
+        res.headers.addHeader ("Set-Cookie", "id=;expires="
+                                + "Thu, 01 Jan 1970 00:00:00 UTC");
+    }
+}
+
 class Auth {
     func Auth(self) {
         self.db = db.DatabaseSingleton.get ();

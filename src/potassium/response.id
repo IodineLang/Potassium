@@ -45,22 +45,6 @@ class Response {
         return self.headers.generate () + self.response;
     }
 
-    func setAuthCookie (self, user, pass) {
-        authHelper = auth.Auth (db.DatabaseSingleton.get ());
-        tok = authHelper.createToken (user, pass);
-        if (tok != null) {
-            self.headers.addHeader ("Set-Cookie", "id={}".format (tok));
-            return true;
-        }
-        return false;
-    }
-
-    func destroyAuthCookie (self, user) {
-        authHelper = auth.Auth ();
-        authHelper.destroyToken (user);
-        self.headers.addHeader ("Set-Cookie", "id=;expires=expires="
-                                + "Thu, 01 Jan 1970 00:00:00 UTC");
-    }
 }
 
 class HTMLResponse : Response {
@@ -88,9 +72,15 @@ class TemplateResponse : HTMLResponse {
 
 class RedirectResponse : Response {
     func RedirectResponse (self, uri) {
-        super ("<a href=\"{}\">Redirect</a>".format (uri), 302, "text/html");
-        self.headers.addHeader ("Location", "{}".format (uri));
+        super ("<h1>Invalid redirect</h1>", 302, "text/html");
+        self.uri = uri;
     }
+
+    func getResponse (self) {
+        self.headers.addHeader ("Location", "{}".format (self.uri));
+        return self.headers.generate () + "<a href=\"{}\">Redirect</a>".format (self.uri);
+    }
+    
 }
 
 class MethodNotAllowedResponse : Response {
