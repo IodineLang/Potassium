@@ -2,10 +2,126 @@ use reflection;
 
 
 class Template {
+
+    class TemplateToken {
+        func TemplateToken (self, value, type) {
+            self.value = value;
+            self.type = type;
+        }
+    }
+
+    class TemplateEngine {
+
+        func TemplateEngine (self, source) {
+            self.length = source.getSize ();
+            self.source = source;
+        }
+
+        func compile (self, dict) {
+            self.position = 0;
+            tokens = self.tokenize ();
+            constants = List ();
+            accum = "";
+            appendAccum = lambda (s) => {
+                accum += Str (s);
+            };
+
+            dict["append"] = appendAccum;
+            dict["__constants"] = constants;
+            dict["include"] = lambda (x) => {
+                return appendAccum (Template (x).render (dict));
+            };
+
+            src = "func gen () {";
+            foreach (token in tokens) {
+                if (token.type == TOKEN_HTML) {
+                    src += "append (__constants [{}]);\n".format (constants.getSize ());
+                    constants.add (token.value);
+                } else {
+                    src += "{}\n".format (token.value);
+                }
+            }
+            src += "}\n";
+            outputModule = reflection.compileModule (src);
+            foreach (key in dict) {
+                reflection.setAttribute (outputModule, Str (key), dict[key]);
+            }
+            outputModule.gen ();
+            return accum;
+        }
+
+
+
+        func tokenize (self) {
+            myTokens = List ();
+            while (self.peekChar () != null) {
+                if (self.peekChar () == "{" && self.peekCharN (1) == "%") {
+                    myTokens.add (Template.TemplateToken (self.scanIodineCode (), TOKEN_IODINE_CODE));
+                }
+                else {
+                    myTokens.add (Template.TemplateToken (self.scanHTMLCode (), TOKEN_HTML));
+                }
+            }
+            return myTokens;
+        }
+
+        func scanHTMLCode (self) {
+            accum = "";
+            while (self.peekChar () != null && !(self.peekChar () == "{" && self.peekCharN (1) == "%")) {
+                accum += Str (self.readChar ());
+            }
+            return accum;
+        }
+        func scanIodineCode (self) {
+            accum = "";
+            self.readChar ();
+            self.readChar ();
+            while (self.peekChar () != null && (self.peekChar () != "%" || self.peekCharN (1) != "}")) {
+                if (self.peekChar () == "\"" || self.peekChar () == "'") {
+                    accum += self.scanIodineString (self.readChar ());
+                } else {
+                    accum += Str (self.readChar ());
+                }
+            }
+            self.readChar ();
+            self.readChar ();
+
+            return accum;
+        }
+
+        func scanIodineString (self, delim) {
+            accum = Str (delim);
+            while (self.peekChar () != delim) {
+                accum += Str (self.readChar ());
+            }
+            accum += Str (self.readChar ());
+            return accum;
+        }
+
+        func peekChar (self) {
+            return self.peekCharN (0);
+        }
+
+        func peekCharN (self, n) {
+            if (self.position + n >= self.length) {
+                return null;
+            }
+            return self.source[self.position + n];
+        }
+
+        func readChar (self) {
+            if (self.position >= self.length) {
+                return null;
+            }
+            self.position += 1;
+            return self.source[self.position - 1];
+        }
+    }
+
     func Template (self, fileName) {
         fd = open (fileName, "r");
         self.template = fd.readAllText ();
-        self.engine = TemplateEngine (self.template);
+        self.engine = Template.TemplateEngine (self.template);
         fd.close ();
     }
 
@@ -20,117 +136,3 @@ class Template {
 
 TOKEN_HTML = 0;
 TOKEN_IODINE_CODE = 1;
-
-class TemplateToken {
-    func TemplateToken (self, value, type) {
-        self.value = value;
-        self.type = type;
-    }
-}
-
-class TemplateEngine {
-
-    func TemplateEngine (self, source) {
-        self.length = source.getSize ();
-        self.source = source;
-    }
-
-    func compile (self, dict) {
-        self.position = 0;
-        tokens = self.tokenize ();
-        constants = List ();
-        accum = "";
-        appendAccum = lambda (s) => {
-            accum += Str (s);
-        };
-
-        dict["append"] = appendAccum;
-        dict["__constants"] = constants;
-        dict["include"] = lambda (x) => {
-            return appendAccum (Template (x).render (dict));
-        };
-
-        src = "func gen () {";
-        foreach (token in tokens) {
-            if (token.type == TOKEN_HTML) {
-                src += "append (__constants [{}]);\n".format (constants.getSize ());
-                constants.add (token.value);
-            } else {
-                src += "{}\n".format (token.value);
-            }
-        }
-        src += "}\n";
-        outputModule = reflection.compileModule (src);
-        foreach (key in dict) {
-            reflection.setAttribute (outputModule, Str (key), dict[key]);
-        }
-        outputModule.gen ();
-        return accum;
-    }
-
-
-
-    func tokenize (self) {
-        myTokens = List ();
-        while (self.peekChar () != null) {
-            if (self.peekChar () == "{" && self.peekCharN (1) == "%") {
-                myTokens.add (TemplateToken (self.scanIodineCode (), TOKEN_IODINE_CODE));
-            } else {
-                myTokens.add (TemplateToken (self.scanHTMLCode (), TOKEN_HTML));
-            }
-        }
-        return myTokens;
-    }
-
-    func scanHTMLCode (self) {
-        accum = "";
-        while (self.peekChar () != null && (self.peekChar () != "{" && self.peekCharN (1) != "%")) {
-            accum += Str (self.readChar ());
-        }
-        return accum;
-    }
-    func scanIodineCode (self) {
-        accum = "";
-        self.readChar ();
-        self.readChar ();
-        while (self.peekChar () != null && (self.peekChar () != "%" || self.peekCharN (1) != "}")) {
-            if (self.peekChar () == "\"" || self.peekChar () == "'") {
-                accum += self.scanIodineString (self.readChar ());
-            } else {
-                accum += Str (self.readChar ());
-            }
-        }
-        self.readChar ();
-        self.readChar ();
-
-        return accum;
-    }
-
-    func scanIodineString (self, delim) {
-        accum = Str (delim);
-        while (self.peekChar () != delim) {
-            accum += Str (self.readChar ());
-        }
-        accum += Str (self.readChar ());
-        return accum;
-    }
-
-    func peekChar (self) {
-        return self.peekCharN (0);
-    }
-
-    func peekCharN (self, n) {
-        if (self.position + n >= self.length) {
-            return null;
-        }
-        return self.source[self.position + n];
-    }
-
-    func readChar (self) {
-        if (self.position >= self.length) {
-            return null;
-        }
-        self.position += 1;
-        return self.source[self.position - 1];
-    }
-}
