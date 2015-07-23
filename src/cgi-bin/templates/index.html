@@ -11,7 +11,7 @@
     <body>
         {%
         if (logged_in == false) {
-        include ("cgi-bin/templates/header.html");
+        include ("header.html");
         %}
 
         <div class="main ui container">
@@ -53,7 +53,7 @@
         else {%}
             <div class="ui inverted vertical masthead center aligned segment">
             {%
-            include ("cgi-bin/templates/header.html");
+            include ("header.html");
             %}
                 <div class="ui container">
 
@@ -69,6 +69,6 @@
                 </div>
             </div>
         {%}%}
-        {%include ("cgi-bin/templates/footer.html")%}
+        {%include ("footer.html")%}
     </body>
 </html>

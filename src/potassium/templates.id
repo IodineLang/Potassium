@@ -29,10 +29,11 @@ class Template {
 
             dict["append"] = appendAccum;
             dict["__constants"] = constants;
-            dict["include"] = lambda (x) => {
-                return appendAccum (Template (x).render (dict));
-            };
             dict ["templateDir"] = Settings.get ("templateDir");
+            dict["include"] = lambda (x) => {
+                return appendAccum (Template ("{}/{}".format (dict
+                       ["templateDir"], x)).render (dict));
+            };
 
             src = "func gen () {";
             foreach (token in tokens) {

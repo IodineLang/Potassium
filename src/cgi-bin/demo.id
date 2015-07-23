@@ -14,6 +14,7 @@ URLBASE = "/cgi-bin/demo.id";
 func main () {
     settings.Settings.init ();
     settings.Settings.set ("connectionString", CONNECTION_STRING);
+    settings.Settings.set ("templateDir", "cgi-bin/templates");
     urls = List ();
     urls.add (router.URLItem ("/", IndexView ()));
     urls.add (router.URLItem ("/login", LoginView ()));
