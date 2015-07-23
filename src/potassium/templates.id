@@ -1,5 +1,6 @@
 use reflection;
 
+use Settings from potassium.settings;
 
 class Template {
 
@@ -31,6 +32,7 @@ class Template {
             dict["include"] = lambda (x) => {
                 return appendAccum (Template (x).render (dict));
             };
+            dict ["templateDir"] = Settings.get ("templateDir");
 
             src = "func gen () {";
             foreach (token in tokens) {

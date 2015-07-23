@@ -14,9 +14,9 @@ class DatabaseSingleton {
             return DatabaseSingleton.db;
         }
         else {
-            _db = settings.Settings.get ("database_connectionString");
+            _db = settings.Settings.get ("connectionString");
             if (_db == null) {
-                raise Exception ("database_connectionString setting is not set!");
+                raise Exception ("connectionString setting is not set!");
                 return;
             }
 
