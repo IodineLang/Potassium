@@ -30,9 +30,14 @@ class Template {
             dict["append"] = appendAccum;
             dict["__constants"] = constants;
             dict ["templateDir"] = Settings.get ("templateDir");
-            dict["include"] = lambda (x) => {
-                return appendAccum (Template ("{}/{}".format (dict
-                       ["templateDir"], x)).render (dict));
+            dict["include"] = lambda (x, params y) => {
+                path = "{}/{}".format (dict ["templateDir"], x)
+                if (y.getSize () == 0) {
+                    return appendAccum (Template (path).render (dict));
+                }
+                else {
+                    return appendAccum (Template (path).render (y [0]))
+                }
             };
 
             src = "func gen () {";
