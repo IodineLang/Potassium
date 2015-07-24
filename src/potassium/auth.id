@@ -33,7 +33,7 @@ class Auth {
             salt = random.cryptoString(16);
         }
         hashPass = Str(hash.sha512(Str(salt) + Str(pass)));
-        return (pass, salt);
+        return (hashPass, salt);
     }
 
     func destroyToken (self, user) {
