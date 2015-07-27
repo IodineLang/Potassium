@@ -1,0 +1,94 @@
+class Model {
+    func Model (self, name, fields) {
+        self.name = name;
+        self.fields = fields;
+        self.plural = name + "s";
+    }
+
+    func _generateTableSchema (self) {
+        _fields = map (self.fields, lambda (field) => {
+            return field.sqlDef;
+        });
+        fields = ",\n".join (_fields);
+        return "CREATE TABLE `{}` (\n{}\n);".format (self.plural, fields);
+    }
+    
+}
+
+class Field {
+    func Field (self, name, field, params constraints) {
+        _constraints = map (constraints, lambda (constraint) => {
+            return constraint.sqlDef;
+        });
+        self.sqlDef = "`{}` {} {}".format (name, field.sqlDef, " ".join (_constraints));
+    }
+}
+
+class FieldBase {
+    func FieldBase (self, sqlDef) {
+        self.sqlDef = sqlDef;
+    }
+
+}
+
+class VarCharField : FieldBase {
+    func VarCharField (self, size) {
+        super ("VARCHAR({})".format (size));
+    }
+}
+
+class CharField : FieldBase {
+    func CharField (self, size) {
+        super ("CHAR({})".format (size));
+    }
+}
+
+class IntegerField : FieldBase {
+    func IntegerField (self) {
+        super ("INTEGER");
+    }
+}
+
+class BooleanField : FieldBase {
+    func BooleanField (self) {
+        super ("BOOLEAN");
+    }
+}
+
+class ConstraintBase {
+    func ConstraintBase (self, sqlDef) {
+        self.sqlDef = sqlDef;
+    }
+}
+
+class NotNullConstraint : ConstraintBase {
+    func NotNullConstraint (self) {
+        super ("NOT NULL");
+    }
+}
+
+class AutoIncrementConstraint : ConstraintBase {
+    func AutoIncrementConstraint (self) {
+        super ("AUTO_INCREMENT");
+    }
+}
+
+class DefaultConstraint : ConstraintBase {
+    func DefaultConstraint (self, value) {
+        super ("");
+        if (value is Str) {
+            value = "'{}'".format (value);
+        }
+        else {
+            value = Str (value);
+        }
+        # Uses black magic to set the sqlDef
+        self.sqlDef = "DEFAULT {}".format (value);
+    }
+}
+
+class PrimaryKeyConstraint : ConstraintBase {
+    func PrimaryKeyConstraint (self) {
+        super ("PRIMARY KEY");
+    }
+}

@@ -8,10 +8,25 @@ use potassium.request;
 use potassium.router;
 use potassium.settings;
 
+use * from potassium.orm;
+
 CONNECTION_STRING = "Server=localhost;Database=test;Uid=root;Pwd=secret;";
 URLBASE = "/cgi-bin/demo.id";
 
+class User : Model {
+    func User (self) {
+        super ("User", {
+            Field ("Username", VarCharField (15), NotNullConstraint ()),
+            Field ("id", IntegerField (), PrimaryKeyConstraint ())
+        });
+    }
+}
+
 func main () {
+    print ("\n\n");
+    u = User ();
+    print (u._generateTableSchema ());
+    return;
     settings.Settings.init ();
     settings.Settings.set ("connectionString", CONNECTION_STRING);
     settings.Settings.set ("templateDir", "cgi-bin/templates");
