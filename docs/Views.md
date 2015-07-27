@@ -1,5 +1,5 @@
 # Potassium Views
-(written for Potassium **v0.1.0**)
+(written for Potassium **v0.2.0**)
 
 Views can be used to take away boilerplate and allow you to focus on writing 
 the code you want. Currently, views require only two things: a request type 
