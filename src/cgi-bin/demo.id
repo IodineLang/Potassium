@@ -26,6 +26,18 @@ func main () {
     print ("\n\n");
     u = User ();
     print (u._generateTableSchema ());
+    query = u.query ("Username");
+    query.all ().where (HashMap ({
+        ("Username", "Aurora01")
+    })).exclude (HashMap ({
+        ("id", 1)
+    }));
+    print (query.build ().query);
+    print (", ".join (query.paramValues));
+
+    print (u.add (HashMap ({
+        ("Username", "Aurora"),
+    })) [0]);
     return;
     settings.Settings.init ();
     settings.Settings.set ("connectionString", CONNECTION_STRING);

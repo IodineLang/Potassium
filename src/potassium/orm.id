@@ -3,6 +3,19 @@ class Model {
         self.name = name;
         self.fields = fields;
         self.plural = name + "s";
+        self.paramTemplates = {
+            "@a",
+            "@b",
+            "@c",
+            "@d",
+            "@e",
+            "@f",
+            "@g",
+            "@h",
+            "@i",
+            "@j",
+            "@k"
+        };
     }
 
     func _generateTableSchema (self) {
@@ -12,7 +25,107 @@ class Model {
         fields = ",\n".join (_fields);
         return "CREATE TABLE `{}` (\n{}\n);".format (self.plural, fields);
     }
-    
+
+    func query (self, params cols) {
+        return LazyQuery (self.plural, cols);
+    }
+
+    func add (self, columns) {
+        param = 0;
+        paramValues = {};
+        _colNames = ", ".join (map (columns, lambda (col) => {
+            return col;
+        }));
+
+        _values = ", ".join (map (columns, lambda (col) => {
+            val = columns [col];
+            paramValues.add (val);
+            ret = self.paramTemplates [param];
+            param += 1;
+            return ret;
+        }));
+        stmt = "INSERT INTO {} ({}) VALUES ({});".format (self.plural,
+                                                          _colNames, _values);
+        return (stmt, paramValues);
+    }
+}
+
+class LazyQuery {
+    func LazyQuery (self, table, columns) {
+        self.columns = columns;
+        self.table = table;
+        self.query = "";
+
+        # Prepared statements use @a, @b - @j.
+        self.paramTemplates = {
+            "@a",
+            "@b",
+            "@c",
+            "@d",
+            "@e",
+            "@f",
+            "@g",
+            "@h",
+            "@i",
+            "@j"
+        };
+
+        self.paramValues = {};
+        self.param = 0;
+        self.whereConstraints = {};
+    }
+
+    func all (self) {
+        _columns = ", ".join (self.columns);
+        self.query = "SELECT {} FROM {}".format (_columns, self.table);
+        return self;
+    }
+
+    func _where (self, dict, cmp) {
+        _whereConstraints = {};
+        foreach (constraint in dict) {
+            _whereConstraints.add ((constraint, cmp, self._bindParam (dict [constraint])));
+        }
+        self.whereConstraints += _whereConstraints;
+        return self;
+    }
+
+    func where (self, dict) {
+        return self._where (dict, "=");
+    }
+
+    func exclude (self, dict) {
+        return self._where (dict, "<>");
+    }
+
+    func order_by (self, column, params order) {
+        sortOrder = "DESC";
+        if (order.getSize > 0) {
+            sortOrder = order [0];
+        }
+
+        self.query = "{} ORDER BY {} {}".format (self.query, column, sortOrder);
+        return self;
+    }
+
+    func _bindParam (self, value) {
+        self.paramValues.add (value);
+        ret = self.paramTemplates [self.param];
+        self.param += 1;
+        return ret;
+    }
+
+    func build (self) {
+        if (self.whereConstraints.getSize () > 0) {
+            _whereConstraints = map (self.whereConstraints, lambda (constraint) => {
+                return "{} {} {}".format (constraint [0], constraint [1], constraint [2]);
+            });
+            _constraints = " AND ".join (_whereConstraints);
+            self.query = "{} WHERE {}".format (self.query, _constraints);
+        }
+        self.query += ";";
+        return self;
+    }
 }
 
 class Field {
