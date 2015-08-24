@@ -15,10 +15,10 @@ URLBASE = "/cgi-bin/demo.id";
 
 class User : Model {
     func User (self) {
-        super ("User", {
+        super ("User", [
             Field ("Username", VarCharField (15), NotNullConstraint ()),
             Field ("id", IntegerField (), PrimaryKeyConstraint ())
-        });
+        ]);
     }
 }
 
@@ -27,17 +27,17 @@ func main () {
     u = User ();
     print (u._generateTableSchema ());
     query = u.query ("Username");
-    query.all ().where (HashMap ({
-        ("Username", "Aurora01")
-    })).exclude (HashMap ({
-        ("id", 1)
-    }));
+    query.all ().where ({
+        "Username" : "Aurora01"
+    }).exclude ({
+        "id" : 1
+    });
     print (query.build ().query);
     print (", ".join (query.paramValues));
 
-    print (u.add (HashMap ({
-        ("Username", "Aurora"),
-    })) [0]);
+    print (u.add ({
+        "Username" : "Aurora"
+    }) [0]);
     return;
     settings.Settings.init ();
     settings.Settings.set ("connectionString", CONNECTION_STRING);
@@ -64,7 +64,7 @@ class IndexView : View {
     }
 
     func get (self, requestData) {
-        ctxt = HashMap ();
+        ctxt = {}
         ctxt ["logged_in"] = requestData.sessionValid ();
         return response.TemplateResponse ("cgi-bin/templates/index.html", ctxt);
     }

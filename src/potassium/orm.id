@@ -3,7 +3,7 @@ class Model {
         self.name = name;
         self.fields = fields;
         self.plural = name + "s";
-        self.paramTemplates = {
+        self.paramTemplates = [
             "@a",
             "@b",
             "@c",
@@ -15,7 +15,7 @@ class Model {
             "@i",
             "@j",
             "@k"
-        };
+        ];
     }
 
     func _generateTableSchema (self) {
@@ -57,7 +57,7 @@ class LazyQuery {
         self.query = "";
 
         # Prepared statements use @a, @b - @j.
-        self.paramTemplates = {
+        self.paramTemplates = [
             "@a",
             "@b",
             "@c",
@@ -68,11 +68,11 @@ class LazyQuery {
             "@h",
             "@i",
             "@j"
-        };
+        ];
 
-        self.paramValues = {};
+        self.paramValues = [];
         self.param = 0;
-        self.whereConstraints = {};
+        self.whereConstraints = [];
     }
 
     func all (self) {
@@ -82,7 +82,7 @@ class LazyQuery {
     }
 
     func _where (self, dict, cmp) {
-        _whereConstraints = {};
+        _whereConstraints = [];
         foreach (constraint in dict) {
             _whereConstraints.add ((constraint, cmp, self._bindParam (dict [constraint])));
         }

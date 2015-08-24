@@ -4,7 +4,7 @@ use potassium.auth;
 
 class ResponseHeaders {
     func getStatusCode (self, code) {
-        statusNames = HashMap();
+        statusNames = {};
         statusNames[200] = "OK";
         statusNames[302] = "Found";
         statusNames[400] = "Bad Request";
