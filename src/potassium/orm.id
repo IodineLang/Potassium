@@ -26,7 +26,7 @@ class Model {
         return "CREATE TABLE `{}` (\n{}\n);".format (self.plural, fields);
     }
 
-    func query (self, params cols) {
+    func query (self, *cols) {
         return LazyQuery (self.plural, cols);
     }
 
@@ -98,7 +98,7 @@ class LazyQuery {
         return self._where (dict, "<>");
     }
 
-    func order_by (self, column, params order) {
+    func order_by (self, column, *order) {
         sortOrder = "DESC";
         if (order.getSize > 0) {
             sortOrder = order [0];
@@ -129,7 +129,7 @@ class LazyQuery {
 }
 
 class Field {
-    func Field (self, name, field, params constraints) {
+    func Field (self, name, field, *constraints) {
         _constraints = map (constraints, lambda (constraint) => {
             return constraint.sqlDef;
         });
