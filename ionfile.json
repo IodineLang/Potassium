@@ -1,6 +1,6 @@
 {
     "sources": [
-        "src/potassium"
+        "src"
     ],
     "dependencies": {
         "loglib": "~0.1.0"
