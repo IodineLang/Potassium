@@ -1,6 +1,9 @@
 {
-    "modules": {
-        "potassium": "src/potassium"
+    "sources": [
+        "src/potassium"
+    ],
+    "dependencies": {
+        "loglib": "~0.1.0"
     },
-    "extensions": {}
+    "dependencyLocation": "src/potassium/"
 }
