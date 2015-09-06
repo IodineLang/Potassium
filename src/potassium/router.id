@@ -19,7 +19,7 @@ class Router {
 class URLSpec {
     func URLSpec (self, list, notFound) {
         self.items = list;
-        self.notFound = filter(list, lambda(i) => {
+        self.notFound = filter(list, lambda(i) {
             return i.path == notFound;
         })[0];
     }

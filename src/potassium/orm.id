@@ -19,7 +19,7 @@ class Model {
     }
 
     func _generateTableSchema (self) {
-        _fields = map (self.fields, lambda (field) => {
+        _fields = map (self.fields, lambda (field) {
             return field.sqlDef;
         });
         fields = ",\n".join (_fields);
@@ -33,11 +33,11 @@ class Model {
     func add (self, columns) {
         param = 0;
         paramValues = {};
-        _colNames = ", ".join (map (columns, lambda (col) => {
+        _colNames = ", ".join (map (columns, lambda (col) {
             return col;
         }));
 
-        _values = ", ".join (map (columns, lambda (col) => {
+        _values = ", ".join (map (columns, lambda (col) {
             val = columns [col];
             paramValues.add (val);
             ret = self.paramTemplates [param];
@@ -117,7 +117,7 @@ class LazyQuery {
 
     func build (self) {
         if (self.whereConstraints.getSize () > 0) {
-            _whereConstraints = map (self.whereConstraints, lambda (constraint) => {
+            _whereConstraints = map (self.whereConstraints, lambda (constraint) {
                 return "{} {} {}".format (constraint [0], constraint [1], constraint [2]);
             });
             _constraints = " AND ".join (_whereConstraints);
@@ -130,7 +130,7 @@ class LazyQuery {
 
 class Field {
     func Field (self, name, field, *constraints) {
-        _constraints = map (constraints, lambda (constraint) => {
+        _constraints = map (constraints, lambda (constraint) {
             return constraint.sqlDef;
         });
         self.sqlDef = "`{}` {} {}".format (name, field.sqlDef, " ".join (_constraints));
