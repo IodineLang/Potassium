@@ -32,9 +32,26 @@ class URLEncodedParameters : Parameters {
         query_dict = HashMap();
         foreach (pair in pairs) {
             pair_items = pair.split("=");
-            query_dict[pair_items[0]] = pair_items[1];
+            query_dict[pair_items[0]] = self.unescapeQueryItem (pair_items[1]);
         }
         return query_dict;
+    }
+
+    func unescapeQueryItem (self, item) {
+        item = item.replace ("+", " ");
+        i = 0;
+        accum = "";
+        while (i < len (item)) {
+            if (item [i] == "%") {
+                ch = item [i + 1] + item [i + 2];
+                accum += chr (Int (ch, 16));
+                i += 3;
+            } else {
+                accum += item [i];
+                i += 1;
+            }
+        }
+        return accum;
     }
 
 }
