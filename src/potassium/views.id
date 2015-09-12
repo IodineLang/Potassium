@@ -13,7 +13,7 @@ class View {
         getParameters = request.URLEncodedParameters(os.getEnv("QUERY_STRING"));
         postParameters = null;
         if (type == "POST") {
-            contentType = os.getEnv("CONTENT_TYPE");
+            contentType = os.getEnv("CONTENT_TYPE").split(";")[0].trim();
             if (contentType == "application/json") {
                 data = stdin.read(Int(os.getEnv("CONTENT_LENGTH")));
                 postParameters = request.Parameters(json.parse(data));
