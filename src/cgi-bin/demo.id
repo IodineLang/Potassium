@@ -42,7 +42,7 @@ func main () {
     settings.Settings.init ();
     settings.Settings.set ("connectionString", CONNECTION_STRING);
     settings.Settings.set ("templateDir", "cgi-bin/templates");
-    urls = List ();
+    urls = [];
     urls.add (router.URLItem ("/", IndexView ()));
     urls.add (router.URLItem ("/login", LoginView ()));
     urls.add (router.URLItem ("/logout", LogoutView ()));
@@ -95,7 +95,7 @@ class LoginView : View {
     }
 
     func get (self, requestData) {
-        ctxt = HashMap ();
+        ctxt = {};
         ctxt ["error"] = false;
         return response.TemplateResponse ("cgi-bin/templates/login.html",
                                           ctxt);
@@ -104,7 +104,7 @@ class LoginView : View {
     func post (self, requestData) {
         uname = requestData.postData.getParam ("username");
         passwd = requestData.postData.getParam ("password");
-        ctxt = HashMap ();
+        ctxt = {};
 
         if (uname == null || passwd == null) {
             ctxt ["error"] = true;

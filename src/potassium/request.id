@@ -23,13 +23,13 @@ class URLEncodedParameters : Parameters {
 
     func parse (self, queryString) {
         if (queryString == null) {
-            return HashMap ();
+            return {};
         }
         pairs = queryString.split("&");
         if (pairs[0] == "") {
-            return HashMap();
+            return {};
         }
-        query_dict = HashMap();
+        query_dict = {};
         foreach (pair in pairs) {
             pair_items = pair.split("=");
             query_dict[pair_items[0]] = self.unescapeQueryItem (pair_items[1]);
@@ -68,7 +68,7 @@ class Request {
         if (self.cookies.contains ("id")) {
             authHelper = auth.Auth ();
             res = authHelper.verifyToken (self.cookies ["id"]);
-            self.user = HashMap ();
+            self.user = {};
             self.user ["username"] = res [1];
             return res [0];
         }

@@ -21,7 +21,7 @@ class Template {
         func compile (self, dict) {
             self.position = 0;
             tokens = self.tokenize ();
-            constants = List ();
+            constants = [];
             accum = "";
             appendAccum = lambda (s) {
                 accum += Str (s);
@@ -61,7 +61,7 @@ class Template {
 
 
         func tokenize (self) {
-            myTokens = List ();
+            myTokens = [];
             while (self.peekChar () != null) {
                 if (self.peekChar () == "{" && self.peekCharN (1) == "%") {
                     myTokens.add (Template.TemplateToken (self.scanIodineCode (), TOKEN_IODINE_CODE));
