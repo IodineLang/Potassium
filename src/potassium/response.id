@@ -1,6 +1,6 @@
-use potassium.templates;
-use potassium.db;
-use potassium.auth;
+use .templates;
+use .db;
+use .auth;
 
 class ResponseHeaders {
     func getStatusCode (self, code) {
@@ -49,7 +49,7 @@ class Response {
 
 class HTMLResponse : Response {
     func HTMLResponse (self, response, statusCode) {
-        super(response, statusCode, "text/html");
+        super (response, statusCode, "text/html");
     }
 
 }

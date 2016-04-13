@@ -1,4 +1,4 @@
-use potassium.auth;
+use .auth;
 
 class Parameters {
     func Parameters (self, paramDict) {
@@ -90,18 +90,18 @@ class RequestType {
 
 class GetRequest : RequestType {
     func GetRequest (self) {
-        super("GET", false, true);
+        super ("GET", false, true);
     }
 }
 
 class PostRequest : RequestType {
     func PostRequest (self) {
-        super("POST", true, true);
+        super ("POST", true, true);
     }
 }
 
 class AnyRequest : RequestType {
     func AnyRequest (self) {
-        super("*", true, true);
+        super ("*", true, true);
     }
 }

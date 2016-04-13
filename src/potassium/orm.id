@@ -32,7 +32,7 @@ class Model {
 
     func add (self, columns) {
         param = 0;
-        paramValues = {};
+        paramValues = [];
         _colNames = ", ".join (map (columns, lambda (col) {
             return col;
         }));
@@ -116,7 +116,7 @@ class LazyQuery {
     }
 
     func build (self) {
-        if (self.whereConstraints.getSize () > 0) {
+        if (len (self.whereConstraints) > 0) {
             _whereConstraints = map (self.whereConstraints, lambda (constraint) {
                 return "{} {} {}".format (constraint [0], constraint [1], constraint [2]);
             });

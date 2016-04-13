@@ -6,8 +6,7 @@ class Settings {
     func get (name) {
         try {
             return Settings.settings [name];
-        }
-        except (e as AttributeNotFoundException, KeyNotFoundException) {
+        } except (e as AttributeNotFoundException, KeyNotFoundException) {
             if (e is AttributeNotFoundException) {
                 Settings.settings = {};
             }
@@ -19,8 +18,7 @@ class Settings {
     func set (name, value) {
         try {
             Settings.settings [name] = value;
-        }
-        except (e as AttributeNotFoundException) {
+        } except (e as AttributeNotFoundException) {
             Settings.settings = {};
             Settings.settings [name] = value;
         }

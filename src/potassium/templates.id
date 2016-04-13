@@ -1,6 +1,6 @@
 use reflection;
 
-use Settings from potassium.settings;
+use Settings from .settings;
 
 class Template {
 
@@ -14,7 +14,7 @@ class Template {
     class TemplateEngine {
 
         func TemplateEngine (self, source) {
-            self.length = source.getSize ();
+            self.length = len (source);
             self.source = source;
         }
 
@@ -32,7 +32,7 @@ class Template {
             dict ["templateDir"] = Settings.get ("templateDir");
             dict["include"] = lambda (x, *y) {
                 path = "{}/{}".format (dict ["templateDir"], x);
-                if (y.getSize () == 0) {
+                if (len (y) == 0) {
                     return appendAccum (Template (path).render (dict));
                 }
                 else {
@@ -43,7 +43,7 @@ class Template {
             src = "func gen () {";
             foreach (token in tokens) {
                 if (token.type == TOKEN_HTML) {
-                    src += "append (__constants [{}]);\n".format (constants.getSize ());
+                    src += "append (__constants [{}]);\n".format (len (constants));
                     constants.add (token.value);
                 } else {
                     src += "{}\n".format (token.value);

@@ -2,7 +2,7 @@ use hash;
 use random;
 use mysql;
 
-use potassium.db;
+use .db;
 
 class CookieAuth {
     func login (res, user, pass) {
@@ -63,28 +63,29 @@ class Auth {
         tokenParam = self.db.createParam("token", token);
         result = self.db.querySqlPrepared("SELECT (username) FROM `Tokens` WHERE
                                           token = @token;", tokenParam);
-        if (result.getSize() == 0) {
+        if (len (result) == 0) {
             return (false, null);
         }
-        else if (result.getSize() > 1) {
-            raise("Database corrupt!");
+        else if (len (result) > 1) {
+            raise Exception ("Database corrupt!");
         }
 
-        return (true, result[0]["username"]);
+        return (true, result[0] ["username"]);
     }
 
     func verifyPass (self, username, rawPass) {
         unameParam = self.db.createParam("uname", username);
         result = self.db.querySqlPrepared("SELECT salt, pass FROM `Users`
                                          WHERE username = @uname;", unameParam);
-        if (result.getSize() == 0) {
+        if (len (result) == 0) {
             return false;
         }
-        else if (result.getSize() > 1) {
-            raise("Database corrupt!");
+        else if (len (result) > 1) {
+            raise Exception ("Database corrupt!");
         }
-        salt = result[0]["salt"];
+        salt = result [0]["salt"];
         hashPass = self._hash(rawPass, salt)[0];
+
         if (hashPass == result[0]["pass"]) {
             return true;
         }
@@ -125,7 +126,7 @@ class Auth {
         users = self.db.querySqlPrepared("SELECT id, username, email, isadmin
                                          FROM `Users` WHERE username = @uname",
                                          unameParam);
-        if (users.getSize() == 0) {
+        if (len (users) == 0) {
             return null;
         }
 

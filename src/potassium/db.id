@@ -1,7 +1,7 @@
 use mysql;
 use reflection;
 
-use potassium.settings;
+use .settings;
 
 
 class DatabaseSingleton {
@@ -12,8 +12,7 @@ class DatabaseSingleton {
     func get () {
         if (reflection.hasAttribute (DatabaseSingleton, "db")) {
             return DatabaseSingleton.db;
-        }
-        else {
+        } else {
             _db = settings.Settings.get ("connectionString");
             if (_db == null) {
                 raise Exception ("connectionString setting is not set!");
