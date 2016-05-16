@@ -1,146 +1,147 @@
-use reflection;
+use reflection
 
-use Settings from .settings;
+use Settings from .settings
 
 class Template {
 
     class TemplateToken {
         func TemplateToken (self, value, type) {
-            self.value = value;
-            self.type = type;
+            self.value = value
+            self.type = type
         }
     }
 
     class TemplateEngine {
 
         func TemplateEngine (self, source) {
-            self.length = len (source);
-            self.source = source;
+            self.length = len (source)
+            self.source = source
         }
 
         func compile (self, dict) {
-            self.position = 0;
-            tokens = self.tokenize ();
-            constants = [];
-            accum = "";
+            self.position = 0
+            tokens = self.tokenize ()
+            constants = []
+            accum = ""
             appendAccum = lambda (s) {
-                accum += Str (s);
-            };
+                accum += Str (s)
+            }
 
-            dict["append"] = appendAccum;
-            dict["__constants"] = constants;
-            dict ["templateDir"] = Settings.get ("templateDir");
-            dict["include"] = lambda (x, *y) {
-                path = "{}/{}".format (dict ["templateDir"], x);
+            dict ["append"] = appendAccum
+            dict ["__constants"] = constants
+            dict ["templateDir"] = Settings.get ("templateDir")
+            dict ["include"] = lambda (x, *y) {
+                path = "#{dict ['templateDir']}/#{x}"
                 if (len (y) == 0) {
-                    return appendAccum (Template (path).render (dict));
+                    return appendAccum (Template (path).render (dict))
                 }
                 else {
-                    return appendAccum (Template (path).render (y [0]));
+                    return appendAccum (Template (path).render (y [0]))
                 }
-            };
+            }
 
-            src = "func gen () {";
-            foreach (token in tokens) {
+            src = StringBuffer ()
+            src.append ("func gen () {")
+            for (token in tokens) {
                 if (token.type == TOKEN_HTML) {
-                    src += "append (__constants [{}]);\n".format (len (constants));
-                    constants.add (token.value);
+                    src.append ("append (__constants [#{len (constants)}])\n")
+                    constants.append (token.value)
                 } else {
-                    src += "{}\n".format (token.value);
+                    src.append ("#{token.value}\n")
                 }
             }
-            src += "}\n";
-            outputModule = reflection.compileModule (src);
-            foreach (key in dict) {
-                reflection.setAttribute (outputModule, Str (key), dict[key]);
+            src.append ("}\n")
+            outputModule = reflection.compileModule (Str (src))
+            for (key in dict) {
+                reflection.setAttribute (outputModule, Str (key), dict [key])
             }
-            outputModule.gen ();
-            return accum;
+            outputModule.gen ()
+            return accum
         }
 
 
 
         func tokenize (self) {
-            myTokens = [];
+            myTokens = []
             while (self.peekChar () != null) {
                 if (self.peekChar () == "{" && self.peekCharN (1) == "%") {
-                    myTokens.add (Template.TemplateToken (self.scanIodineCode (), TOKEN_IODINE_CODE));
+                    myTokens.append (Template.TemplateToken (self.scanIodineCode (), TOKEN_IODINE_CODE))
                 }
                 else {
-                    myTokens.add (Template.TemplateToken (self.scanHTMLCode (), TOKEN_HTML));
+                    myTokens.append (Template.TemplateToken (self.scanHTMLCode (), TOKEN_HTML))
                 }
             }
-            return myTokens;
+            return myTokens
         }
 
         func scanHTMLCode (self) {
-            accum = "";
+            accum = ""
             while (self.peekChar () != null && !(self.peekChar () == "{" && self.peekCharN (1) == "%")) {
-                accum += Str (self.readChar ());
+                accum += Str (self.readChar ())
             }
-            return accum;
+            return accum
         }
+
         func scanIodineCode (self) {
-            accum = "";
-            self.readChar ();
-            self.readChar ();
+            accum = ""
+            self.readChar ()
+            self.readChar ()
             while (self.peekChar () != null && (self.peekChar () != "%" || self.peekCharN (1) != "}")) {
                 if (self.peekChar () == "\"" || self.peekChar () == "'") {
-                    accum += self.scanIodineString (self.readChar ());
+                    accum += self.scanIodineString (self.readChar ())
                 } else {
-                    accum += Str (self.readChar ());
+                    accum += Str (self.readChar ())
                 }
             }
-            self.readChar ();
-            self.readChar ();
+            self.readChar ()
+            self.readChar ()
 
-            return accum;
+            return accum
         }
 
         func scanIodineString (self, delim) {
-            accum = Str (delim);
+            accum = Str (delim)
             while (self.peekChar () != delim) {
-                accum += Str (self.readChar ());
+                accum += Str (self.readChar ())
             }
-            accum += Str (self.readChar ());
-            return accum;
+            accum += Str (self.readChar ())
+            return accum
         }
 
         func peekChar (self) {
-            return self.peekCharN (0);
+            return self.peekCharN (0)
         }
 
         func peekCharN (self, n) {
             if (self.position + n >= self.length) {
-                return null;
+                return null
             }
-            return self.source[self.position + n];
+            return self.source [self.position + n]
         }
 
         func readChar (self) {
             if (self.position >= self.length) {
-                return null;
+                return null
             }
-            self.position += 1;
-            return self.source[self.position - 1];
+            self.position += 1
+            return self.source [self.position - 1]
         }
     }
 
     func Template (self, fileName) {
-        fd = open (fileName, "r");
-        self.template = fd.readAllText ();
-        self.engine = Template.TemplateEngine (self.template);
-        fd.close ();
+        fd = open (fileName, "r")
+        self.template = fd.readAllText ()
+        self.engine = Template.TemplateEngine (self.template)
+        fd.close ()
     }
 
     # Takes a hashMap for context with all the named variables to be passed to
     # the template.
     func render (self, context) {
-        return self.engine.compile (context);
+        return self.engine.compile (context)
     }
 }
 
 # Constants for lexer
-
-TOKEN_HTML = 0;
-TOKEN_IODINE_CODE = 1;
+TOKEN_HTML = 0
+TOKEN_IODINE_CODE = 1

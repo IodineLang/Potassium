@@ -1,30 +1,28 @@
-use mysql;
-use reflection;
+use mysql
+use reflection
 
-use .settings;
-
+use .settings
 
 class DatabaseSingleton {
     func set (db) {
-        DatabaseSingleton.db = db;
+        DatabaseSingleton.db = db
     }
 
     func get () {
         if (reflection.hasAttribute (DatabaseSingleton, "db")) {
-            return DatabaseSingleton.db;
-        } else {
-            _db = settings.Settings.get ("connectionString");
-            if (_db == null) {
-                raise Exception ("connectionString setting is not set!");
-                return;
-            }
-
-            DatabaseSingleton.db = mysql.openDatabase (_db);
-            if (DatabaseSingleton.db == null) {
-                raise ("Database setup failed. Verify connection string.");
-            }
-
-            return DatabaseSingleton.get ();
+            return DatabaseSingleton.db
         }
+        
+        _db = settings.Settings.get ("connectionString")
+        if (_db == null) {
+            raise Exception ("connectionString setting is not set!")
+        }
+
+        DatabaseSingleton.db = mysql.openDatabase (_db)
+        if (DatabaseSingleton.db == null) {
+            raise ("Database setup failed. Verify connection string.")
+        }
+
+        return DatabaseSingleton.get ()
     }
 }

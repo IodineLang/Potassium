@@ -1,86 +1,85 @@
-use json;
-use os;
-use reflection;
+use json
+use os
+use reflection
 
-use .request;
-use .response;
+use .request
+use .response
 
 class View {
     func run (self) {
-        type = os.getenv ("REQUEST_METHOD");
-        cookiesEnv = os.getenv ("HTTP_COOKIE");
-        cookies = request.URLEncodedParameters (cookiesEnv).parameters;
-        getParameters = request.URLEncodedParameters(os.getenv("QUERY_STRING"));
-        postParameters = null;
+        type = os.getenv ("REQUEST_METHOD")
+        cookiesEnv = os.getenv ("HTTP_COOKIE")
+        cookies = request.URLEncodedParameters (cookiesEnv).parameters
+        getParameters = request.URLEncodedParameters (os.getenv ("QUERY_STRING"))
+        postParameters = null
         if (type == "POST") {
-            contentType = os.getenv("CONTENT_TYPE").split(";")[0].trim();
+            contentType = os.getenv ("CONTENT_TYPE").split ("") [0].trim ()
             if (contentType == "application/json") {
-                data = stdin.read (Int(os.getEnv("CONTENT_LENGTH")));
-                postParameters = request.Parameters(json.parse(data));
+                data = stdin.read (Int (os.getEnv ("CONTENT_LENGTH")))
+                postParameters = request.Parameters (json.parse (data))
             }
             else if (contentType == "application/x-www-form-urlencoded") {
-                data = stdin.read (Int(os.getenv("CONTENT_LENGTH")));
-                postParameters = request.URLEncodedParameters(data);
+                data = stdin.read (Int (os.getenv ("CONTENT_LENGTH")))
+                postParameters = request.URLEncodedParameters (data)
             }
         }
-        requestData = request.Request(getParameters, postParameters, cookies);
+        requestData = request.Request (getParameters, postParameters, cookies)
         if (type == "GET" && reflection.hasAttribute (self, "get")) {
-            print (self.get (requestData).getResponse ());
-            return true;
+            print (self.get (requestData).getResponse ())
+            return true
         }
         else if (type == "POST" && reflection.hasAttribute (self, "post")) {
-            print (self.post (requestData).getResponse ());
-            return true;
+            print (self.post (requestData).getResponse ())
+            return true
         }
 
-        print (self.methodNotAllowed ().getResponse ());
-        return true;
+        print (self.methodNotAllowed ().getResponse ())
+        return true
     }
 
     func methodNotAllowed (self) {
-        return response.MethodNotAllowedResponse ();
+        return response.MethodNotAllowedResponse ()
     }
 }
 
 class ViewWrapper {
     func ViewWrapper (self, function) {
-        self.function = function;
+        self.function = function
     }
 
     func run (self) {
-        return self.function ();
+        return self.function ()
     }
 }
 
-func functionView (type) {
+func functionView (requestType) {
     func wrapper (function) {
         func inner () {
-            _type = os.getenv ("REQUEST_METHOD");
-            if (_type != type) {
-                return false;
+            if (os.getenv ("REQUEST_METHOD") != requestType) {
+                return false
             }
-            cookiesEnv = os.getenv ("HTTP_COOKIE");
-            cookies = request.URLEncodedParameters (cookiesEnv).parameters;
+            cookiesEnv = os.getenv ("HTTP_COOKIE")
+            cookies = request.URLEncodedParameters (cookiesEnv).parameters
 
-            getParameters = null;
-            getParameters = request.URLEncodedParameters(os.getenv("QUERY_STRING"));
-            postParameters = null;
-            if (type == "POST") {
-                contentType = os.getenv("CONTENT_TYPE");
+            getParameters = null
+            getParameters = request.URLEncodedParameters (os.getenv ("QUERY_STRING"))
+            postParameters = null
+            if (requestType == "POST") {
+                contentType = os.getenv ("CONTENT_TYPE")
                 if (contentType == "application/json") {
-                    data = stdin.read(Int(os.getenv("CONTENT_LENGTH")));
-                    postParameters = request.Parameters(json.parse(data));
+                    data = stdin.read (Int (os.getenv ("CONTENT_LENGTH")))
+                    postParameters = request.Parameters (json.parse (data))
                 }
                 else if (contentType == "application/x-www-form-urlencoded") {
-                    data = stdin.read(Int(os.getenv("CONTENT_LENGTH")));
-                    postParameters = request.URLEncodedParameters(data);
+                    data = stdin.read (Int (os.getenv ("CONTENT_LENGTH")))
+                    postParameters = request.URLEncodedParameters (data)
                 }
             }
-            requestData = request.Request(getParameters, postParameters, cookies);
-            print (function (requestData).getResponse ());
-            return true;
+            requestData = request.Request (getParameters, postParameters, cookies)
+            print (function (requestData).getResponse ())
+            return true
         }
-        return ViewWrapper (inner);
+        return ViewWrapper (inner)
     }
-    return wrapper;
+    return wrapper
 }

@@ -1,96 +1,95 @@
-use .templates;
-use .db;
-use .auth;
+use .templates
+use .db
+use .auth
 
 class ResponseHeaders {
     func getStatusCode (self, code) {
-        statusNames = {};
-        statusNames[200] = "OK";
-        statusNames[302] = "Found";
-        statusNames[400] = "Bad Request";
-        statusNames[403] = "Forbidden";
-        statusNames[404] = "Not Found";
-        statusNames[405] = "Method Not Allowed";
-        return statusNames[code];
+        statusNames = Dict ()
+        statusNames [200] = "OK"
+        statusNames [302] = "Found"
+        statusNames [400] = "Bad Request"
+        statusNames [403] = "Forbidden"
+        statusNames [404] = "Not Found"
+        statusNames [405] = "Method Not Allowed"
+        return statusNames [code]
     }
 
     func ResponseHeaders (self, statusCode, mime) {
-        self.status = statusCode;
-        self.mime = mime;
-        self.headers = "";
+        self.status = statusCode
+        self.mime = mime
+        self.headers = ""
     }
 
     func addHeader(self, header, value) {
-        self.headers = self.headers + header + ": " + value + "\n";
+        self.headers = "#{self.headers}#{header}: #{value}\n"
     }
 
     func generate (self) {
-        self.addHeader("Status", Str (self.status) + " " +
-                                 self.getStatusCode(self.status));
+        self.addHeader ("Status", "#{Str (self.status)} #{self.getStatusCode (self.status)}")
         if (self.mime != "") {
-            self.addHeader("Content-type", self.mime);
+            self.addHeader ("Content-type", self.mime)
         }
-        self.headers = self.headers + "\n";
-        return self.headers;
+        self.headers = "#{self.headers}\n"
+        return self.headers
     }
 }
 
 class Response {
     func Response (self, response, statusCode, mime) {
-        self.headers = ResponseHeaders(statusCode, mime);
-        self.response = response;
+        self.headers = ResponseHeaders (statusCode, mime)
+        self.response = response
     }
 
-    func getResponse(self) {
-        return self.headers.generate () + self.response;
+    func getResponse (self) {
+        return "#{self.headers.generate ()}#{self.response}"
     }
 
 }
 
 class HTMLResponse : Response {
     func HTMLResponse (self, response, statusCode) {
-        super (response, statusCode, "text/html");
+        super (response, statusCode, "text/html")
     }
 
 }
 
 class TemplateResponse : HTMLResponse {
     func TemplateResponse (self, fileName, context) {
-        super("<h1>Template Rendering Failed</h1>", 200);
-        self.template = templates.Template (fileName);
-        self.context = context;
+        super ("<h1>Template Rendering Failed</h1>", 200)
+        self.template = templates.Template (fileName)
+        self.context = context
     }
 
     func getResponse (self) {
-        return self.headers.generate () + self.template.render (self.context);
+        return "#{self.headers.generate ()}#{self.template.render (self.context)}"
     }
 
     func setTemplate (self, fileName) {
-        self.template = templates.Template (fileName);
+        self.template = templates.Template (fileName)
     }
 }
 
 class RedirectResponse : Response {
     func RedirectResponse (self, uri) {
-        super ("<h1>Invalid redirect</h1>", 302, "text/html");
-        self.uri = uri;
+        super ("<h1>Invalid redirect</h1>", 302, "text/html")
+        self.uri = uri
     }
 
     func getResponse (self) {
-        self.headers.addHeader ("Location", "{}".format (self.uri));
-        return self.headers.generate () + "<a href=\"{}\">Redirect</a>".format (self.uri);
+        self.headers.addHeader ("Location", "#{self.uri}")
+        return "#{self.headers.generate ()}<a href=\"#{self.uri}\">Redirect</a>"
     }
     
 }
 
 class MethodNotAllowedResponse : Response {
     func MethodNotAllowedResponse (self) {
-        super ("<h1>Method not allowed!</h1>", 405, "text/html");
+        super ("<h1>Method not allowed!</h1>", 405, "text/html")
     }
 }
 
 class JSONResponse : Response {
     func JSONResponse (self, response, statusCode) {
-        super(response, statusCode, "application/json");
+        super (response, statusCode, "application/json")
     }
 }

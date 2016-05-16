@@ -1,26 +1,25 @@
 class Settings {
     func init () {
-        Settings.settings = {};
+        Settings.settings = Dict ()
     }
 
     func get (name) {
         try {
-            return Settings.settings [name];
+            return Settings.settings [name]
         } except (e as AttributeNotFoundException, KeyNotFoundException) {
             if (e is AttributeNotFoundException) {
-                Settings.settings = {};
+                Settings.settings = Dict ()
             }
-
-            return null;
+            return null
         }
     }
 
     func set (name, value) {
         try {
-            Settings.settings [name] = value;
+            Settings.settings [name] = value
         } except (e as AttributeNotFoundException) {
-            Settings.settings = {};
-            Settings.settings [name] = value;
+            Settings.settings = Dict ()
+            Settings.settings [name] = value
         }
     }
 }

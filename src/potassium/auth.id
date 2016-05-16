@@ -1,4 +1,4 @@
-use hash;
+use hashlib;
 use random;
 use mysql;
 
@@ -9,7 +9,7 @@ class CookieAuth {
         authHelper = Auth (db.DatabaseSingleton.get ());
         tok = authHelper.createToken (user, pass);
         if (tok != null) {
-            res.headers.addHeader ("Set-Cookie", "id={}".format (tok));
+            res.headers.addHeader ("Set-Cookie", "id=#{tok}");
             return true;
         }
         return false;
@@ -18,8 +18,7 @@ class CookieAuth {
     func logout (res, user) {
         authHelper = Auth ();
         authHelper.destroyToken (user);
-        res.headers.addHeader ("Set-Cookie", "id=;expires="
-                                + "Thu, 01 Jan 1970 00:00:00 UTC");
+        res.headers.addHeader ("Set-Cookie", "id=;expires=Thu, 01 Jan 1970 00:00:00 UTC");
     }
 }
 
@@ -30,63 +29,55 @@ class Auth {
 
     func _hash (self, pass, salt) {
         if (salt == "") {
-            salt = random.cryptoString(16);
+            salt = random.cryptoString (16);
         }
-        hashPass = Str(hash.sha512(Str(salt) + Str(pass)));
+        hashPass = Str (hash.sha512 (Str (salt) + Str (pass)));
         return (hashPass, salt);
     }
 
     func destroyToken (self, user) {
-        unameParam = self.db.createParam("uname", user);
-        self.db.executeSqlPrepared("DELETE FROM `Tokens` WHERE username
-                                             = @uname;", unameParam);
+        unameParam = self.db.createParam ("uname", user);
+        self.db.executeSqlPrepared ('DELETE FROM `Tokens` WHERE username = @uname;', unameParam);
     }
 
     func createToken (self, user, rawPass) {
-        if (!self.verifyPass(user, rawPass)) {
+        if (!self.verifyPass (user, rawPass)) {
             return null;
         }
-        unameParam = self.db.createParam("uname", user);
-        self.db.executeSqlPrepared("DELETE FROM `Tokens` WHERE username
-                                             = @uname;", unameParam);
-        token = random.cryptoString(128);
-        res = hash.sha512(token);
-        tokenParam = self.db.createParam("token", res);
-        self.db.executeSqlPrepared("INSERT INTO `Tokens` (username, token)
-                                   VALUES (@uname, @token);", unameParam,
-                                   tokenParam);
+        unameParam = self.db.createParam ("uname", user);
+        self.db.executeSqlPrepared ('DELETE FROM `Tokens` WHERE username = @uname;', unameParam);
+        token = random.cryptoString (128);
+        res = hash.sha512 (token);
+        tokenParam = self.db.createParam ("token", res);
+        self.db.executeSqlPrepared ('INSERT INTO `Tokens` (username, token) VALUES (@uname, @token);', unameParam, tokenParam);
         return token;
     }
 
     func verifyToken (self, token) {
-        token = Str(hash.sha512(token));
-        tokenParam = self.db.createParam("token", token);
-        result = self.db.querySqlPrepared("SELECT (username) FROM `Tokens` WHERE
-                                          token = @token;", tokenParam);
+        token = Str (hash.sha512 (token));
+        tokenParam = self.db.createParam ("token", token);
+        result = self.db.querySqlPrepared ('SELECT (username) FROM `Tokens` WHERE token = @token;', tokenParam);
         if (len (result) == 0) {
             return (false, null);
         }
         else if (len (result) > 1) {
             raise Exception ("Database corrupt!");
         }
-
-        return (true, result[0] ["username"]);
+        return (true, result [0] ["username"]);
     }
 
     func verifyPass (self, username, rawPass) {
-        unameParam = self.db.createParam("uname", username);
-        result = self.db.querySqlPrepared("SELECT salt, pass FROM `Users`
-                                         WHERE username = @uname;", unameParam);
+        unameParam = self.db.createParam ("uname", username);
+        result = self.db.querySqlPrepared ('SELECT salt, pass FROM `Users` WHERE username = @uname;', unameParam);
         if (len (result) == 0) {
             return false;
         }
         else if (len (result) > 1) {
             raise Exception ("Database corrupt!");
         }
-        salt = result [0]["salt"];
-        hashPass = self._hash(rawPass, salt)[0];
-
-        if (hashPass == result[0]["pass"]) {
+        salt = result [0] ["salt"];
+        hashPass = self._hash (rawPass, salt) [0];
+        if (hashPass == result [0] ["pass"]) {
             return true;
         }
         return false;
@@ -99,72 +90,68 @@ class Auth {
         else {
             isAdmin = 0;
         }
-        hashTuple = self._hash(rawPass, "");
-        hashPass = hashTuple[0];
-        salt = hashTuple[1];
-        unameParam = self.db.createParam("uname", Str(username));
-        passParam = self.db.createParam("pass", hashPass);
-        saltParam = self.db.createParam("salt", salt);
-        emailParam = self.db.createParam("email", email);
-        isadmin = self.db.createParam("isadmin", isAdmin);
-        self.db.executeSqlPrepared("INSERT INTO `Users` (username, email, pass,
-               salt, isadmin) VALUES (@uname, @email, @pass, @salt, @isadmin);",
-               unameParam, passParam, saltParam, emailParam, isadmin);
+        hashTuple = self._hash (rawPass, "");
+        hashPass = hashTuple [0];
+        salt = hashTuple [1];
+        unameParam = self.db.createParam ("uname", Str(username));
+        passParam = self.db.createParam ("pass", hashPass);
+        saltParam = self.db.createParam ("salt", salt);
+        emailParam = self.db.createParam ("email", email);
+        isadmin = self.db.createParam ("isadmin", isAdmin);
+        self.db.executeSqlPrepared ('INSERT INTO `Users` (username, email, pass, salt, isadmin) VALUES (@uname, @email, @pass, @salt, @isadmin);',
+            unameParam, passParam, saltParam, emailParam, isadmin);
         return true;
     }
 
     func createUser (self, username, rawPass, email) {
-        return self._createUser(username, rawPass, email, false);
+        return self._createUser (username, rawPass, email, false);
     }
 
     func createSuperUser (self, username, rawPass, email) {
-        return self._createUser(username, rawPass, email, true);
+        return self._createUser (username, rawPass, email, true);
     }
 
     func getUser(self, username) {
-        unameParam = self.db.createParam("uname", username);
-        users = self.db.querySqlPrepared("SELECT id, username, email, isadmin
-                                         FROM `Users` WHERE username = @uname",
-                                         unameParam);
+        unameParam = self.db.createParam ("uname", username);
+        users = self.db.querySqlPrepared ('SELECT id, username, email, isadmin FROM `Users` WHERE username = @uname', unameParam);
         if (len (users) == 0) {
             return null;
         }
 
-        user = users[0];
-        if (user["isadmin"] == "True") {
-            user["isadmin"] = true;
+        user = users [0];
+        if (user ["isadmin"] == "True") {
+            user ["isadmin"] = true;
         }
         else {
-            user["isadmin"] = false;
+            user ["isadmin"] = false;
         }
         return user;
     }
 
     func migrate (self) {
-        self.db.executeSql("
-DROP TABLE IF EXISTS `Users`;
-DROP TABLE IF EXISTS `Tokens`;
-
-CREATE TABLE `Users` (
-  `id` INTEGER NULL AUTO_INCREMENT DEFAULT NULL,
-  `username` VARCHAR(50) NOT NULL UNIQUE,
-  `email` VARCHAR(254) NOT NULL,
-  `pass` CHAR(128) NOT NULL,
-  `salt` CHAR(16) NOT NULL,
-  `isadmin` BOOLEAN NOT NULL DEFAULT 0,
-  PRIMARY KEY (`id`)
-);
-
-CREATE TABLE `Tokens` (
-  `id` INTEGER NULL AUTO_INCREMENT DEFAULT NULL,
-  `username` VARCHAR(50) NOT NULL UNIQUE,
-  `token` CHAR (128) NOT NULL UNIQUE,
-  PRIMARY KEY (`id`)
-);
-
-ALTER TABLE `Users` ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-ALTER TABLE `Tokens` ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-
-");
+        self.db.executeSql ("
+            DROP TABLE IF EXISTS `Users`;
+            DROP TABLE IF EXISTS `Tokens`;
+            
+            CREATE TABLE `Users` (
+              `id` INTEGER NULL AUTO_INCREMENT DEFAULT NULL,
+              `username` VARCHAR(50) NOT NULL UNIQUE,
+              `email` VARCHAR(254) NOT NULL,
+              `pass` CHAR(128) NOT NULL,
+              `salt` CHAR(16) NOT NULL,
+              `isadmin` BOOLEAN NOT NULL DEFAULT 0,
+              PRIMARY KEY (`id`)
+            );
+            
+            CREATE TABLE `Tokens` (
+              `id` INTEGER NULL AUTO_INCREMENT DEFAULT NULL,
+              `username` VARCHAR(50) NOT NULL UNIQUE,
+              `token` CHAR (128) NOT NULL UNIQUE,
+              PRIMARY KEY (`id`)
+            );
+            
+            ALTER TABLE `Users` ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+            ALTER TABLE `Tokens` ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin; 
+        ");
     }
 }

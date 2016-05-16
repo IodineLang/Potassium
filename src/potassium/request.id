@@ -1,80 +1,76 @@
-use .auth;
+use .auth
 
 class Parameters {
     func Parameters (self, paramDict) {
-        self.parameters = paramDict;
+        self.parameters = paramDict
     }
 
-    func getParam(self, key) {
-        if (self.parameters.contains(key)) {
-            return self.parameters[key];
+    func getParam (self, key) {
+        if (self.parameters.contains (key)) {
+            return self.parameters [key]
         }
-        else {
-            return null;
-        }
+        return null
     }
 }
 
 class URLEncodedParameters : Parameters {
     func URLEncodedParameters (self, queryString) {
-        super(null);
-        self.parameters = self.parse(queryString);
+        super (null)
+        self.parameters = self.parse (queryString)
     }
 
     func parse (self, queryString) {
         if (queryString == null) {
-            return {};
+            return Dict ()
         }
-        pairs = queryString.split("&");
-        if (pairs[0] == "") {
-            return {};
+        pairs = queryString.split ("&")
+        if (pairs [0] == "") {
+            return Dict ()
         }
-        query_dict = {};
-        foreach (pair in pairs) {
-            pair_items = pair.split("=");
-            query_dict[pair_items[0]] = self.unescapeQueryItem (pair_items[1]);
+        query_dict = Dict ()
+        for (pair in pairs) {
+            pair_items = pair.split ("=")
+            query_dict [pair_items [0]] = self.unescapeQueryItem (pair_items [1])
         }
-        return query_dict;
+        return query_dict
     }
 
     func unescapeQueryItem (self, item) {
-        item = item.replace ("+", " ");
-        i = 0;
-        accum = "";
+        item = item.replace ("+", " ")
+        i = 0
+        accum = StringBuffer ()
         while (i < len (item)) {
             if (item [i] == "%") {
-                ch = item [i + 1] + item [i + 2];
-                accum += chr (Int (ch, 16));
-                i += 3;
+                ch = item [i + 1] + item [i + 2]
+                accum.append (chr (Int (ch, 16)))
+                i += 3
             } else {
-                accum += item [i];
-                i += 1;
+                accum.append (item [i])
+                i += 1
             }
         }
-        return accum;
+        return Str (accum)
     }
-
 }
 
 class Request {
     func Request (self, getParameters, postData, cookies) {
-        self.parameters = getParameters;
-        self.postData = postData;
-        self.cookies = cookies;
-        self.sessionState = self.sessionValid ();
+        self.parameters = getParameters
+        self.postData = postData
+        self.cookies = cookies
+        self.sessionState = self.sessionValid ()
     }
 
     func sessionValid (self) {
         if (self.cookies.contains ("id")) {
-            authHelper = auth.Auth ();
-            res = authHelper.verifyToken (self.cookies ["id"]);
-            self.user = {};
-            self.user ["username"] = res [1];
-            return res [0];
+            authHelper = auth.Auth ()
+            res = authHelper.verifyToken (self.cookies ["id"])
+            self.user = Dict ()
+            self.user ["username"] = res [1]
+            return res [0]
         }
-        return false;
+        return false
     }
-
 }
 
 class RequestType {
@@ -82,26 +78,26 @@ class RequestType {
     # Parameters = bool, indicating whether
     #              stdin should be read.
     func RequestType (self, name, postParams, queryParams) {
-        self.name = name;
-        self.postParams = postParams;
-        self.queryParams = queryParams;
+        self.name = name
+        self.postParams = postParams
+        self.queryParams = queryParams
     }
 }
 
 class GetRequest : RequestType {
     func GetRequest (self) {
-        super ("GET", false, true);
+        super ("GET", false, true)
     }
 }
 
 class PostRequest : RequestType {
     func PostRequest (self) {
-        super ("POST", true, true);
+        super ("POST", true, true)
     }
 }
 
 class AnyRequest : RequestType {
     func AnyRequest (self) {
-        super ("*", true, true);
+        super ("*", true, true)
     }
 }
